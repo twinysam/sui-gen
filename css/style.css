@@ -1,0 +1,101 @@
+:root {
+    --bs-font-sans-serif: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --bs-font-serif: 'Noto Serif SC', serif;
+    --bs-font-monospace: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    
+    /* Custom Palette */
+    --sui-red: #c92f2f;      /* Classic Chinese Red */
+    --sui-red-soft: #e6b3b3; 
+    --sui-ink: #2c2c2c;      /* Deep Ink Black */
+    --sui-paper: #f9f9f7;    /* Rice Paper White */
+    --sui-gold: #d4af37;     /* Subtle Gold Accent */
+}
+
+body {
+    font-family: var(--bs-font-sans-serif);
+    background-color: var(--sui-paper);
+    color: var(--sui-ink);
+}
+
+.logo-symbol {
+    font-family: var(--bs-font-serif);
+    font-size: 1.8rem;
+    color: white;
+    background-color: var(--sui-red);
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 4px;
+    /* Subtle seal border effect */
+    box-shadow: 0 0 0 2px var(--sui-paper), 0 0 0 4px var(--sui-red);
+}
+
+/* Sidebar overrides */
+aside.bg-light {
+    background-color: #fcfcfc !important;
+}
+
+/* Button overrides - Primary Action */
+.btn-dark {
+    background-color: var(--sui-ink);
+    border-color: var(--sui-ink);
+}
+
+.btn-dark:hover {
+    background-color: #000;
+    border-color: #000;
+}
+
+/* Progress Bar */
+.progress-bar {
+    background-color: var(--sui-red) !important;
+}
+
+/* Background Pattern - subtle "Asanoha" or lattice */
+.bg-pattern {
+    background-color: #ffffff;
+    opacity: 0.4;
+    background-image:  linear-gradient(30deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0), linear-gradient(150deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0), linear-gradient(30deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0), linear-gradient(150deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0), linear-gradient(60deg, #f5f5f5 25%, transparent 25.5%, transparent 75%, #f5f5f5 75%, #f5f5f5), linear-gradient(60deg, #f5f5f5 25%, transparent 25.5%, transparent 75%, #f5f5f5 75%, #f5f5f5);
+    background-size: 40px 70px;
+    background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+}
+
+.backdrop-blur {
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+/* Header styling */
+header {
+    background: white;
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+.badge.bg-danger-subtle {
+    background-color: #fff5f5 !important; 
+    color: var(--sui-red) !important;
+    border-color: #ffe0e0 !important;
+}
+
+/* Code Preview */
+.code-preview-container {
+    background-color: #fafafa;
+    border-color: #e0e0e0 !important;
+}
+
+code {
+    font-family: var(--bs-font-monospace) !important;
+    font-size: 0.85rem;
+}
+
+/* Form inputs focus state - Red accent */
+.form-control:focus, .form-check-input:focus {
+    border-color: var(--sui-red-soft);
+    box-shadow: 0 0 0 0.25rem rgba(201, 47, 47, 0.15);
+}
+
+.form-check-input:checked {
+    background-color: var(--sui-red);
+    border-color: var(--sui-red);
+}
