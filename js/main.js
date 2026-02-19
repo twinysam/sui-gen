@@ -20,6 +20,53 @@ const btnDownload = document.getElementById('btnDownload');
 let worker = null;
 let generatedData = null;
 
+// ===========================
+// Theme Management
+// ===========================
+const THEME_KEY = 'sui-gen-theme';
+const hljsLight = document.getElementById('hljs-light');
+const hljsDark = document.getElementById('hljs-dark');
+const htmlEl = document.documentElement;
+const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function applyTheme(mode) {
+    let effective;
+    if (mode === 'auto') {
+        effective = systemDarkQuery.matches ? 'dark' : 'light';
+    } else {
+        effective = mode;
+    }
+    htmlEl.setAttribute('data-bs-theme', effective);
+    // Swap Highlight.js stylesheets
+    hljsLight.disabled = (effective === 'dark');
+    hljsDark.disabled = (effective !== 'dark');
+}
+
+function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY) || 'auto';
+    // Check the matching radio button
+    const radio = document.querySelector(`input[name="theme"][value="${saved}"]`);
+    if (radio) radio.checked = true;
+    applyTheme(saved);
+
+    // Listen for toggle changes
+    document.querySelectorAll('input[name="theme"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+            const mode = e.target.value;
+            localStorage.setItem(THEME_KEY, mode);
+            applyTheme(mode);
+        });
+    });
+
+    // Listen for system color scheme changes (for auto mode)
+    systemDarkQuery.addEventListener('change', () => {
+        const current = localStorage.getItem(THEME_KEY) || 'auto';
+        if (current === 'auto') {
+            applyTheme('auto');
+        }
+    });
+}
+
 // Initialize Worker
 function initWorker() {
     if (window.Worker) {
@@ -111,10 +158,17 @@ function finishGeneration() {
     // Update UI
     totalSize.textContent = `${sizeKB} KB`;
     
-    // Preview Logic (First 50 lines)
+    // Preview Logic (First 1000 lines)
     const lines = jsonString.split('\n');
-    const previewContent = lines.slice(0, 50).join('\n') + (lines.length > 50 ? '\n... (truncated for preview)' : '');
+    const previewContent = lines.slice(0, 1000).join('\n') + (lines.length > 1000 ? '\n... (truncated for preview)' : '');
+    
+    // Reset hljs state and apply syntax highlighting
     codePreview.textContent = previewContent;
+    codePreview.removeAttribute('data-highlighted');
+    codePreview.className = 'language-json';  // Extensible: change to language-yaml, etc.
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightElement(codePreview);
+    }
 
     statusText.textContent = 'Generation Complete!';
     resetUI();
@@ -149,7 +203,7 @@ function finishGeneration() {
 function resetUI() {
     btnGenerate.disabled = false;
     spinner.classList.add('d-none');
-    btnText.textContent = 'Generate Manifest';
+    btnText.textContent = 'Generate Calendar';
     // Keep progress bar filled if complete, or hide if error/reset? 
     // Let's leave it visible but maybe change color or something if we want. 
     // For now, simple reset of button state.
@@ -158,5 +212,114 @@ function resetUI() {
 // Event Listeners
 btnGenerate.addEventListener('click', startGeneration);
 
+// ===========================
+// Info Panel
+// ===========================
+const ELEMENT_MAP_INFO = { '金': 'Metal', '木': 'Wood', '水': 'Water', '火': 'Fire', '土': 'Earth' };
+const ELEMENT_EMOJI = { 'Metal': '🪙', 'Wood': '🪵', 'Water': '💧', 'Fire': '🔥', 'Earth': '🌍' };
+const ZODIAC_MAP_INFO = {
+    '鼠': 'Rat', '牛': 'Ox', '虎': 'Tiger', '兔': 'Rabbit',
+    '龙': 'Dragon', '蛇': 'Snake', '马': 'Horse', '羊': 'Goat',
+    '猴': 'Monkey', '鸡': 'Rooster', '狗': 'Dog', '猪': 'Pig'
+};
+const ZODIAC_EMOJI = {
+    'Rat': '🐀', 'Ox': '🐂', 'Tiger': '🐅', 'Rabbit': '🐇',
+    'Dragon': '🐉', 'Snake': '🐍', 'Horse': '🐎', 'Goat': '🐐',
+    'Monkey': '🐒', 'Rooster': '🐓', 'Dog': '🐕', 'Pig': '🐖'
+};
+
+function formatSolarDate(solar) {
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return `${months[solar.getMonth() - 1]} ${solar.getDay()}, ${solar.getYear()}`;
+}
+
+function findLiChun(year) {
+    for (let day = 3; day <= 5; day++) {
+        const s = window.Solar.fromYmd(year, 2, day);
+        if (s.getLunar().getJieQi() === '立春') return s;
+    }
+    return null;
+}
+
+function getYearInfo(lunarYear) {
+    const ny = window.Lunar.fromYmd(lunarYear, 1, 1);
+    const zodiacCn = ny.getYearShengXiao();
+    const zodiac = ZODIAC_MAP_INFO[zodiacCn] || zodiacCn;
+    const stem = ny.getYearGan();
+    let elementChar = window.LunarUtil.WU_XING_GAN ? window.LunarUtil.WU_XING_GAN[stem] : undefined;
+    if (!elementChar) {
+        const wuXingStr = ny.getYearWuXing();
+        elementChar = wuXingStr ? wuXingStr.charAt(0) : '';
+    }
+    const element = ELEMENT_MAP_INFO[elementChar] || elementChar;
+    const ganzhi = ny.getYearInGanZhi();
+    const solar = ny.getSolar();
+    return { zodiac, element, ganzhi, solar };
+}
+
+function initInfoPanel() {
+    const panel = document.getElementById('dynamicYearInfo');
+    if (!panel || typeof window.Lunar === 'undefined') return;
+
+    try {
+        const today = new Date();
+        const solarToday = window.Solar.fromDate(today);
+        const lunarToday = solarToday.getLunar();
+        const currentLunarYear = lunarToday.getYear();
+        const cur = getYearInfo(currentLunarYear);
+
+        // Next Li Chun
+        let liChunYear = today.getFullYear();
+        let liChunSolar = findLiChun(liChunYear);
+        if (liChunSolar) {
+            const liChunJs = new Date(liChunSolar.getYear(), liChunSolar.getMonth() - 1, liChunSolar.getDay());
+            if (liChunJs <= today) {
+                liChunSolar = findLiChun(liChunYear + 1);
+            }
+        }
+
+        // Next Lunar New Year
+        const nextYear = currentLunarYear + 1;
+        const next = getYearInfo(nextYear);
+
+        let html = '';
+
+        // Current year
+        html += `<div class="info-card mb-3 p-3 rounded">`;
+        html += `<p class="mb-0"><strong>${currentLunarYear}</strong> is the year of `;
+        html += `${cur.element} ${ELEMENT_EMOJI[cur.element] || ''} `;
+        html += `${cur.zodiac} ${ZODIAC_EMOJI[cur.zodiac] || ''} `;
+        html += `<span class="text-secondary">(${cur.ganzhi})</span>.</p>`;
+        html += `</div>`;
+
+        // Next Li Chun
+        if (liChunSolar) {
+            html += `<div class="info-card mb-3 p-3 rounded">`;
+            html += `<p class="mb-0">Next <a href="https://en.wikipedia.org/wiki/Lichun" target="_blank">Lìchūn</a> `;
+            html += `will be on <strong>${formatSolarDate(liChunSolar)}</strong>.</p>`;
+            html += `</div>`;
+        }
+
+        // Next Lunar New Year
+        html += `<div class="info-card mb-3 p-3 rounded">`;
+        html += `<p class="mb-0">Next Lunar New Year will be on <strong>${formatSolarDate(next.solar)}</strong>. `;
+        html += `It will be the year of `;
+        html += `${next.element} ${ELEMENT_EMOJI[next.element] || ''} `;
+        html += `${next.zodiac} ${ZODIAC_EMOJI[next.zodiac] || ''} `;
+        html += `<span class="text-secondary">(${next.ganzhi})</span>.</p>`;
+        html += `</div>`;
+
+        panel.innerHTML = html;
+    } catch (err) {
+        console.error('Info panel error:', err);
+        panel.innerHTML = '<p class="text-muted small">Could not load lunar data.</p>';
+    }
+}
+
 // Initialize
+const currentYear = new Date().getFullYear();
+document.getElementById('startYear').value = currentYear;
+document.getElementById('endYear').value = currentYear + 10;
+initTheme();
+initInfoPanel();
 initWorker();

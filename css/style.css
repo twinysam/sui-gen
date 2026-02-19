@@ -99,3 +99,165 @@ code {
     background-color: var(--sui-red);
     border-color: var(--sui-red);
 }
+
+/* ===========================
+   Theme Toggle
+   =========================== */
+.theme-toggle .btn {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    transition: all 0.2s ease;
+}
+
+/* ===========================
+   Info Panel
+   =========================== */
+.info-panel {
+    background-color: #fefefe;
+}
+
+.info-card {
+    background-color: #f8f5f0;
+    border: 1px solid #e8e4de;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.info-card a {
+    color: var(--sui-red);
+    text-decoration: none;
+}
+
+.info-card a:hover {
+    text-decoration: underline;
+}
+
+/* ===========================
+   Dark Mode Overrides
+   =========================== */
+[data-bs-theme="dark"] {
+    --sui-paper: #1a1a1e;
+    --sui-ink: #e0e0e0;
+    --sui-red: #e04545;
+    --sui-red-soft: #5c2222;
+}
+
+[data-bs-theme="dark"] body {
+    background-color: var(--sui-paper);
+    color: var(--sui-ink);
+}
+
+[data-bs-theme="dark"] header {
+    background: #222226 !important;
+    border-bottom-color: rgba(255,255,255,0.08) !important;
+}
+
+[data-bs-theme="dark"] .h4.fw-bold.text-dark {
+    color: var(--sui-ink) !important;
+}
+
+[data-bs-theme="dark"] aside.bg-light {
+    background-color: #1e1e22 !important;
+    border-color: rgba(255,255,255,0.08) !important;
+}
+
+[data-bs-theme="dark"] aside .form-label,
+[data-bs-theme="dark"] aside h6 {
+    color: #999 !important;
+}
+
+[data-bs-theme="dark"] .bg-pattern {
+    background-color: #1a1a1e;
+    opacity: 0.15;
+    background-image: linear-gradient(30deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333), linear-gradient(150deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333), linear-gradient(30deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333), linear-gradient(150deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333), linear-gradient(60deg, #2a2a2a 25%, transparent 25.5%, transparent 75%, #2a2a2a 75%, #2a2a2a), linear-gradient(60deg, #2a2a2a 25%, transparent 25.5%, transparent 75%, #2a2a2a 75%, #2a2a2a);
+    background-size: 40px 70px;
+    background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+}
+
+[data-bs-theme="dark"] main.bg-white {
+    background-color: #1e1e22 !important;
+}
+
+[data-bs-theme="dark"] .backdrop-blur {
+    background-color: rgba(30, 30, 34, 0.75) !important;
+}
+
+[data-bs-theme="dark"] .code-preview-container {
+    background-color: #161618 !important;
+    border-color: #333 !important;
+}
+
+[data-bs-theme="dark"] code {
+    color: #c9d1d9;
+}
+
+[data-bs-theme="dark"] footer.bg-white {
+    background-color: #1e1e22 !important;
+    border-color: rgba(255,255,255,0.08) !important;
+}
+
+[data-bs-theme="dark"] .btn-dark {
+    background-color: var(--sui-red);
+    border-color: var(--sui-red);
+}
+
+[data-bs-theme="dark"] .btn-dark:hover {
+    background-color: #c03030;
+    border-color: #c03030;
+}
+
+[data-bs-theme="dark"] .form-control {
+    background-color: #2a2a2e;
+    border-color: #444;
+    color: var(--sui-ink);
+}
+
+[data-bs-theme="dark"] .form-check-label {
+    color: var(--sui-ink);
+}
+
+[data-bs-theme="dark"] .info-panel {
+    background-color: #1e1e22;
+}
+
+[data-bs-theme="dark"] .info-card {
+    background-color: #2a2a2e;
+    border-color: #3a3a3e;
+}
+
+[data-bs-theme="dark"] .info-card a {
+    color: #e88;
+}
+
+/* ===========================
+   Responsive Layout
+   =========================== */
+.layout-container {
+    height: 100vh; /* Desktop: fixed viewport height */
+    overflow: hidden; /* Prevent body scroll on desktop */
+}
+
+@media (max-width: 767.98px) {
+    /* Mobile: allow natural page scroll */
+    .layout-container {
+        height: auto !important;
+        overflow-y: auto !important;
+    }
+
+    /* Disable internal panel scrolling */
+    .layout-row, aside, main, .info-panel, .overflow-auto, .overflow-hidden {
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Remove vertical borders, add horizontal separators */
+    .info-panel, aside.bg-light, aside.border-end {
+        border-right: none !important;
+        border-bottom: 1px solid var(--bs-border-color-translucent) !important;
+    }
+    
+    /* Limit code preview height on mobile so it doesn't take forever to scroll past */
+    .code-preview-container pre {
+        max-height: 60vh;
+    }
+}

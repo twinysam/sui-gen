@@ -55,7 +55,12 @@ function generateManifest({ startYear, endYear, fields }) {
             // Element (Wu Xing)
             if (fields.element) {
                 const stem = lunarNewYear.getYearGan();
-                const elementChar = LunarUtil.WU_XING_GAN[stem];
+                let elementChar = LunarUtil.WU_XING_GAN ? LunarUtil.WU_XING_GAN[stem] : undefined;
+                if (!elementChar) {
+                    // Fallback: extract first char from getYearWuXing() (e.g. '金水' -> '金')
+                    const wuXingStr = lunarNewYear.getYearWuXing();
+                    elementChar = wuXingStr ? wuXingStr.charAt(0) : stem;
+                }
                 yearData.element = ELEMENT_MAP[elementChar] || elementChar;
             }
             
@@ -65,58 +70,29 @@ function generateManifest({ startYear, endYear, fields }) {
             }
             
             // Li Chun Date
+            // Li Chun always falls between Feb 3-5 in the Gregorian calendar.
+            // We cannot use the Lunar New Year's jieQiTable because Li Chun
+            // often occurs before Lunar New Year.
             if (fields.liChun) {
-                // Li Chun is a JieQi.
-                const jieQiTable = lunarNewYear.getJieQiTable();
-                const liChunSolar = jieQiTable['立春'];
-                if (liChunSolar) {
-                    yearData.liChun = liChunSolar.toYmd();
+                for (let day = 3; day <= 5; day++) {
+                    const solarDay = Solar.fromYmd(year, 2, day);
+                    if (solarDay.getLunar().getJieQi() === '立春') {
+                        yearData.liChun = solarDay.toYmd();
+                        break;
+                    }
                 }
             }
             
-            // Year Length (in days)
+            // Year Length and Leap Month
+            // Use LunarYear for efficient native lookups
+            const lunarYearObj = LunarYear.fromYear(year);
+            
             if (fields.yearLength) {
-                // Diff next CNY - this CNY
-                const nextLunarNewYear = Lunar.fromYmd(year + 1, 1, 1).getSolar();
-                const diffTime = Math.abs(new Date(nextLunarNewYear.toYmd()) - new Date(solarObj.toYmd()));
-                yearData.yearLength = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                yearData.yearLength = lunarYearObj.getDayCount();
             }
             
-            // Leap Month
             if (fields.leapMonth) {
-                // Strategy: Scan the year's lunar months.
-                // Start from Lunar New Year, jump by 29 days, check month index.
-                // If negative, it's a leap month.
-                let leapMonth = 0;
-                
-                // We clone the start date via Solar to iterate safely
-                let scanDate = solarObj;
-                
-                // We scan up to 14 times (covering >380 days) to be safe
-                for (let i = 0; i < 14; i++) {
-                     // Check current Lunar Month
-                     const l = Lunar.fromSolar(scanDate);
-                     const m = l.getMonth();
-                     
-                     // Check if this date is still in the same Lunar Year
-                     // (Wait, Lunar Year might change? Yes, if we go past end)
-                     if (l.getYear() !== year) {
-                         // We went past the year, stop.
-                         break;
-                     }
-                     
-                     if (m < 0) {
-                         leapMonth = Math.abs(m);
-                         break; // Found it
-                     }
-                     
-                     // Advance 29 days (min lunar month length)
-                     // Using SolarUtil or just JS Date
-                     const jsDate = new Date(scanDate.toYmd());
-                     jsDate.setDate(jsDate.getDate() + 29);
-                     scanDate = Solar.fromYmd(jsDate.getFullYear(), jsDate.getMonth() + 1, jsDate.getDate());
-                }
-                yearData.leapMonth = leapMonth;
+                yearData.leapMonth = lunarYearObj.getLeapMonth();
             }
             
             // New Moon UTC
