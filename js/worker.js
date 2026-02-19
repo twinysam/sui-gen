@@ -69,17 +69,10 @@ function generateManifest({ startYear, endYear, fields }) {
                 yearData.ganzhi = lunarNewYear.getYearInGanZhi();
             }
             
-            // Li Chun Date
-            // Li Chun always falls between Feb 3-5 in the Gregorian calendar.
-            // We cannot use the Lunar New Year's jieQiTable because Li Chun
-            // often occurs before Lunar New Year.
             if (fields.liChun) {
-                for (let day = 3; day <= 5; day++) {
-                    const solarDay = Solar.fromYmd(year, 2, day);
-                    if (solarDay.getLunar().getJieQi() === '立春') {
-                        yearData.liChun = solarDay.toYmd();
-                        break;
-                    }
+                const jieQiTable = lunarNewYear.getJieQiTable();
+                if (jieQiTable['立春']) {
+                    yearData.liChun = jieQiTable['立春'].toYmd();
                 }
             }
             
@@ -96,35 +89,37 @@ function generateManifest({ startYear, endYear, fields }) {
                 yearData.leapMonth = lm > 0 ? lm : null;
             }
             
-            // New Moon UTC
             if (fields.newMoonUtc) {
                 // Precision Astronomical New Moon (Shuo)
                 try {
-                    // 1. Get LunarMonth for the 1st month of the year
-                    // Note: Lunar.fromYmd(year, 1, 1) is Day 1 of Month 1.
                     const monthObj = LunarMonth.fromYm(year, 1);
                     const firstJD = monthObj.getFirstJulianDay();
 
-                    // 2. Calculate approximate Lunation Number (k)
-                    // Formula derived from library's calcShuo logic
+                    // Calculate approximate Lunation Number (k)
                     const k = Math.floor((firstJD + 14 - 2451551) / 29.5306);
 
-                    // 3. Calculate Precision Shuo (Days since J2000 + 8h offset)
+                    // Calculate Precision Shuo (Days since J2000 + 8h offset)
                     const radian = k * 2 * Math.PI;
                     const preciseShuoBeijing = ShouXingUtil.shuoHigh(radian);
 
-                    // 4. Convert to UTC Julian Day
-                    // Remove 1/3 day (8h) Beijing offset, add J2000 base
+                    // Convert to UTC Julian Day
                     const jdUTC = preciseShuoBeijing - (1/3) + 2451545;
 
-                    // 5. Convert to ISO String
+                    // Convert to ISO String and validate
                     const dateTimestamp = (jdUTC - 2440587.5) * 86400000;
-                    yearData.newMoonUtc = new Date(dateTimestamp).toISOString();
+                    const candidate = new Date(dateTimestamp);
+                    
+                    if (isNaN(candidate.getTime())) {
+                        throw new Error('Invalid date from JD calculation');
+                    }
+                    
+                    yearData.newMoonUtc = candidate.toISOString();
 
                 } catch (e) {
-                    // Fallback to simple date if precision fails (should not happen)
+                    // Fall back to CNY date at midnight UTC and flag as approximate
                     yearData.newMoonUtc = solarObj.toYmd() + "T00:00:00Z";
-                    console.error(`Precision Shuo failed for ${year}:`, e);
+                    yearData.newMoonUtcApproximate = true;
+                    console.warn(`Precision Shuo fell back for ${year}:`, e.message || e);
                 } 
             }
 
