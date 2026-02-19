@@ -18,6 +18,22 @@ const previewLimit = document.getElementById('previewLimit');
 const btnCopy = document.getElementById('btnCopy');
 const btnDownload = document.getElementById('btnDownload');
 const formatSelect = document.getElementById('formatSelect');
+const startYearInput = document.getElementById('startYear');
+const endYearInput = document.getElementById('endYear');
+const fieldWarningBanner = document.getElementById('fieldWarningBanner');
+const fieldWarningText = document.getElementById('fieldWarningText');
+
+// Reliability Tiers (Hard Limits and Warnings)
+const FIELD_RANGES = {
+    newMoonUtc: { warnBefore: null, warnAfter: 2050, hardBefore: 619, hardAfter: 2300, id: 'fieldNewMoonUtc', noteId: 'noteNewMoonUtc' },
+    liChun:     { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 3000, id: 'fieldLiChun', noteId: 'noteLiChun' },
+    cnyDate:    { warnBefore: null, warnAfter: null,  hardBefore: 500, hardAfter: 3000, id: 'fieldCnyDate', noteId: 'noteCnyDate' },
+    leapMonth:  { warnBefore: null, warnAfter: null,  hardBefore: 500, hardAfter: 3000, id: 'fieldLeapMonth', noteId: 'noteLeapMonth' },
+    yearLength: { warnBefore: null, warnAfter: null,  hardBefore: 500, hardAfter: 3000, id: 'fieldYearLength', noteId: 'noteYearLength' },
+    zodiac:     { warnBefore: null, warnAfter: null,  hardBefore: null, hardAfter: null, id: 'fieldZodiac', noteId: 'noteZodiac' },
+    ganzhi:     { warnBefore: null, warnAfter: null,  hardBefore: null, hardAfter: null, id: 'fieldGanzhi', noteId: 'noteGanzhi' },
+    element:    { warnBefore: null, warnAfter: null,  hardBefore: null, hardAfter: null, id: 'fieldElement', noteId: 'noteElement' },
+};
 
 // Format Configuration
 const FORMAT_CONFIG = {
@@ -169,10 +185,14 @@ function updateOutput() {
     const config = FORMAT_CONFIG[format];
     const outputString = config.fn(generatedData);
     const blob = new Blob([outputString], { type: config.mime });
-    const sizeKB = (blob.size / 1024).toFixed(2);
-
+    const sizeKB = blob.size / 1024;
+    
     // Update UI Stats
-    totalSize.textContent = `${sizeKB} KB`;
+    if (sizeKB > 1000) {
+        totalSize.textContent = `${(sizeKB / 1024).toFixed(2)} MB`;
+    } else {
+        totalSize.textContent = `${sizeKB.toFixed(2)} KB`;
+    }
 
     // Preview Logic (First 1000 lines)
     const lines = outputString.split('\n');
@@ -242,6 +262,52 @@ function resetUI() {
     // For now, simple reset of button state.
 }
 
+function validateFieldAvailability() {
+    const startYear = parseInt(startYearInput.value, 10);
+    const endYear = parseInt(endYearInput.value, 10);
+    if (isNaN(startYear) || isNaN(endYear)) return;
+
+    let warningMessages = [];
+
+    for (const [fieldKey, range] of Object.entries(FIELD_RANGES)) {
+        const checkbox = document.getElementById(range.id);
+        const noteSpan = document.getElementById(range.noteId);
+        if (!checkbox || !noteSpan) continue;
+
+        let hardBlockedBefore = range.hardBefore !== null && startYear < range.hardBefore;
+        let hardBlockedAfter = range.hardAfter !== null && endYear > range.hardAfter;
+
+        if (hardBlockedBefore || hardBlockedAfter) {
+            checkbox.disabled = true;
+            checkbox.checked = false;
+            noteSpan.textContent = hardBlockedBefore 
+                ? `(not available before ${range.hardBefore} CE)` 
+                : `(not available after ${range.hardAfter} CE)`;
+        } else {
+            checkbox.disabled = false;
+            noteSpan.textContent = "";
+            
+            // Re-enable if it was previously checked or just leave it? 
+            // The requirement says "re-enable it".
+        }
+
+        // Warning Logic (only if field is selected)
+        if (checkbox.checked) {
+            if (range.warnAfter !== null && endYear > range.warnAfter) {
+                if (fieldKey === 'newMoonUtc') {
+                    warningMessages.push(`<strong>New Moon UTC:</strong> values after ${range.warnAfter} are extrapolated from a parabolic ΔT model and may have errors exceeding 10 minutes. Values are omitted after ${range.hardAfter}.`);
+                }
+            }
+        }
+    }
+
+    if (warningMessages.length > 0) {
+        fieldWarningText.innerHTML = warningMessages.join('<br>');
+        fieldWarningBanner.classList.remove('d-none');
+    } else {
+        fieldWarningBanner.classList.add('d-none');
+    }
+}
 // Event Listeners
 btnGenerate.addEventListener('click', startGeneration);
 
@@ -351,8 +417,16 @@ function initInfoPanel() {
 
 // Initialize
 const currentYear = new Date().getFullYear();
-document.getElementById('startYear').value = currentYear;
-document.getElementById('endYear').value = currentYear + 10;
+startYearInput.value = currentYear;
+endYearInput.value = currentYear + 10;
+
+startYearInput.addEventListener('input', validateFieldAvailability);
+endYearInput.addEventListener('input', validateFieldAvailability);
+document.querySelectorAll('.form-check-input').forEach(cb => {
+    cb.addEventListener('change', validateFieldAvailability);
+});
+
 initTheme();
+validateFieldAvailability(); // Initial check
 initInfoPanel();
 initWorker();

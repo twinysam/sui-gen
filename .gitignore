@@ -1,3 +1,4 @@
 verify_lunar.js
 verify_worker.js
 verify_formatters.js
+reproduce_bug.js

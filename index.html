@@ -80,35 +80,41 @@
                 <h6 class="text-uppercase fw-bold text-secondary small mb-3">Data Fields</h6>
                 <div class="form-check mb-2">
                     <input class="form-check-input" type="checkbox" id="fieldCnyDate" checked>
-                    <label class="form-check-label small" for="fieldCnyDate">Diff to Gregorian CNY</label>
+                    <label class="form-check-label small" for="fieldCnyDate">Diff to Gregorian CNY <span id="noteCnyDate" class="text-danger extra-small"></span></label>
                 </div>
                 <div class="form-check mb-2">
                     <input class="form-check-input" type="checkbox" id="fieldZodiac" checked>
-                    <label class="form-check-label small" for="fieldZodiac">Zodiac Animal</label>
+                    <label class="form-check-label small" for="fieldZodiac">Zodiac Animal <span id="noteZodiac" class="text-danger extra-small"></span></label>
                 </div>
                 <div class="form-check mb-2">
                     <input class="form-check-input" type="checkbox" id="fieldElement" checked>
-                    <label class="form-check-label small" for="fieldElement">Element (Wu Xing)</label>
+                    <label class="form-check-label small" for="fieldElement">Element (Wu Xing) <span id="noteElement" class="text-danger extra-small"></span></label>
                 </div>
                 <div class="form-check mb-2">
                     <input class="form-check-input" type="checkbox" id="fieldGanzhi" checked>
-                    <label class="form-check-label small" for="fieldGanzhi">Ganzhi Name</label>
+                    <label class="form-check-label small" for="fieldGanzhi">Ganzhi Name <span id="noteGanzhi" class="text-danger extra-small"></span></label>
                 </div>
                 <div class="form-check mb-2">
                     <input class="form-check-input" type="checkbox" id="fieldLiChun">
-                    <label class="form-check-label small" for="fieldLiChun">Li Chun Date</label>
+                    <label class="form-check-label small" for="fieldLiChun">Li Chun Date <span id="noteLiChun" class="text-danger extra-small"></span></label>
                 </div>
                 <div class="form-check mb-2">
                     <input class="form-check-input" type="checkbox" id="fieldYearLength">
-                    <label class="form-check-label small" for="fieldYearLength">Year Length (Days)</label>
+                    <label class="form-check-label small" for="fieldYearLength">Year Length (Days) <span id="noteYearLength" class="text-danger extra-small"></span></label>
                 </div>
                 <div class="form-check mb-2">
                     <input class="form-check-input" type="checkbox" id="fieldLeapMonth">
-                    <label class="form-check-label small" for="fieldLeapMonth">Leap Month (Runyue)</label>
+                    <label class="form-check-label small" for="fieldLeapMonth">Leap Month (Runyue) <span id="noteLeapMonth" class="text-danger extra-small"></span></label>
                 </div>
                 <div class="form-check mb-2">
                     <input class="form-check-input" type="checkbox" id="fieldNewMoonUtc">
-                    <label class="form-check-label small" for="fieldNewMoonUtc">New Moon (UTC)</label>
+                    <label class="form-check-label small" for="fieldNewMoonUtc">New Moon (UTC) <span id="noteNewMoonUtc" class="text-danger extra-small"></span></label>
+                </div>
+
+                <!-- Field Warning Banner -->
+                <div id="fieldWarningBanner" class="alert alert-warning extra-small mt-3 p-2 d-none" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span id="fieldWarningText"></span>
                 </div>
             </div>
 
@@ -120,9 +126,13 @@
                 <div class="progress mt-3" style="height: 4px; display: none;" id="progressBarContainer">
                     <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" id="progressBar"></div>
                 </div>
-                <div class="d-flex justify-content-between mt-2">
+                <div class="d-flex justify-content-between mt-2 mb-3">
                     <small class="text-secondary" id="statusText">Ready</small>
                 </div>
+
+                <button type="button" class="btn btn-link extra-small text-secondary p-0 text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#reliabilityModal">
+                    <i class="bi bi-info-circle me-1"></i> About data reliability
+                </button>
             </div>
         </aside>
 
@@ -167,7 +177,45 @@
     </div>
 </div>
 
-<!-- Scripts -->
+    <!-- Reliability Modal -->
+    <div class="modal fade" id="reliabilityModal" tabindex="-1" aria-labelledby="reliabilityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content sui-modal border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title fw-bold d-flex align-items-center" id="reliabilityModalLabel">
+                        <span class="logo-symbol me-2 d-inline-block" style="width: 28px; height: 28px; line-height: 28px; font-size: 1.1rem; box-shadow: none; border: none;">歲</span>
+                        Data Reliability Info
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">The Core Engine</h6>
+                        <p class="sui-modal-text small">The library uses astronomical tables backed by historical records up to 1960, and highly complex formula extrapolation beyond that point.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Delta-T (ΔT) Drift</h6>
+                        <p class="sui-modal-text small">The difference between Terrestrial Time and Universal Time (due to Earth's rotation slowing down) grows unpredictably over centuries. This affects the precision of specific timings like New Moons.</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Cycle Stability</h6>
+                        <p class="sui-modal-text small">Lunisolar cycle fields (Zodiac, Elements, Ganzhi) are calculated via pure arithmetic and are 100% reliable for any year, as they do not depend on astronomical precision.</p>
+                    </div>
+
+                    <div class="p-3 sui-modal-ref rounded border border-light-subtle extra-small">
+                        <i class="bi bi-book me-2"></i> Reference: <a href="https://adsabs.harvard.edu/full/2004JHA....35..327M" target="_blank" class="text-danger text-decoration-none fw-bold">Morrison & Stephenson (2004)</a> for ΔT extrapolation details.
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-light-subtle bg-light bg-opacity-50">
+                    <button type="button" class="btn btn-dark w-100 shadow-sm py-2" data-bs-dismiss="modal">I Understand</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/json.min.js"></script>

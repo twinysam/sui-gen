@@ -265,3 +265,71 @@ code {
         max-height: 60vh;
     }
 }
+/* ===========================
+   Premium Modal Styling
+   =========================== */
+.sui-modal {
+    background-color: var(--sui-paper);
+    color: var(--sui-ink);
+    border: none;
+}
+
+.sui-modal .modal-header, 
+.sui-modal .modal-body, 
+.sui-modal .modal-footer {
+    background-color: var(--sui-paper);
+    border-color: rgba(0,0,0,0.05) !important;
+}
+
+/* Modal Internal Elements */
+.sui-modal-heading {
+    color: var(--sui-ink);
+}
+
+.sui-modal-text {
+    color: #666;
+}
+
+.sui-modal-ref {
+    background-color: #f8f9fa;
+    color: #666;
+}
+
+/* Dark Mode Specific Refinements */
+[data-bs-theme="dark"] .sui-modal {
+    --sui-paper: #222226;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+[data-bs-theme="dark"] .sui-modal .modal-header,
+[data-bs-theme="dark"] .sui-modal .modal-footer {
+    border-color: rgba(255,255,255,0.08) !important;
+}
+
+[data-bs-theme="dark"] .sui-modal-heading {
+    color: var(--sui-ink); /* Already light in dark mode var */
+}
+
+[data-bs-theme="dark"] .sui-modal-text {
+    color: #b0b0b0;
+}
+
+[data-bs-theme="dark"] .sui-modal-ref {
+    background-color: #2a2a2e;
+    color: #b0b0b0;
+    border-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Modal Title Icon specific fix */
+.sui-modal .logo-symbol {
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.sui-modal .btn-close {
+    filter: invert(0.2);
+}
+
+[data-bs-theme="dark"] .sui-modal .btn-close {
+    filter: invert(1);
+}
