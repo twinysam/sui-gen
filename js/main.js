@@ -3,6 +3,8 @@
  * Handles UI interactions and Worker communication.
  */
 
+import { toJSON, toCSV, toYAML, toSQL, toMarkdown } from './formatters.js';
+
 // DOM Elements
 const btnGenerate = document.getElementById('btnGenerate');
 const btnText = document.getElementById('btnText');
@@ -15,6 +17,16 @@ const totalSize = document.getElementById('totalSize');
 const previewLimit = document.getElementById('previewLimit');
 const btnCopy = document.getElementById('btnCopy');
 const btnDownload = document.getElementById('btnDownload');
+const formatSelect = document.getElementById('formatSelect');
+
+// Format Configuration
+const FORMAT_CONFIG = {
+    json: { ext: '.json', mime: 'application/json', lang: 'language-json', fn: toJSON },
+    csv:  { ext: '.csv',  mime: 'text/csv',         lang: '',              fn: toCSV },
+    yaml: { ext: '.yaml', mime: 'text/yaml',        lang: 'language-yaml', fn: toYAML },
+    sql:  { ext: '.sql',  mime: 'text/sql',         lang: 'language-sql',  fn: toSQL },
+    md:   { ext: '.md',   mime: 'text/markdown',    lang: 'language-markdown', fn: toMarkdown }
+};
 
 // Worker Reference
 let worker = null;
@@ -149,55 +161,76 @@ function startGeneration() {
     });
 }
 
-// Finish Generation
-function finishGeneration() {
-    const jsonString = JSON.stringify(generatedData, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
+// Update Preview and Download Buttons based on current data and format
+function updateOutput() {
+    if (!generatedData) return;
+
+    const format = formatSelect.value;
+    const config = FORMAT_CONFIG[format];
+    const outputString = config.fn(generatedData);
+    const blob = new Blob([outputString], { type: config.mime });
     const sizeKB = (blob.size / 1024).toFixed(2);
 
-    // Update UI
+    // Update UI Stats
     totalSize.textContent = `${sizeKB} KB`;
-    
+
     // Preview Logic (First 1000 lines)
-    const lines = jsonString.split('\n');
+    const lines = outputString.split('\n');
     const previewContent = lines.slice(0, 1000).join('\n') + (lines.length > 1000 ? '\n... (truncated for preview)' : '');
-    
-    // Reset hljs state and apply syntax highlighting
+
+    // Reset hljs state
     codePreview.textContent = previewContent;
     codePreview.removeAttribute('data-highlighted');
-    codePreview.className = 'language-json';  // Extensible: change to language-yaml, etc.
-    if (typeof hljs !== 'undefined') {
+    codePreview.className = config.lang; 
+    
+    // Apply Highlight.js if language is supported and loaded
+    if (config.lang && typeof hljs !== 'undefined') {
         hljs.highlightElement(codePreview);
     }
 
+    // Update Buttons
+    btnCopy.onclick = () => {
+        navigator.clipboard.writeText(outputString).then(() => {
+            const originalText = btnCopy.textContent;
+            btnCopy.textContent = 'Copied!';
+            setTimeout(() => btnCopy.textContent = originalText, 2000);
+        });
+    };
+
+    btnDownload.innerText = `Download ${config.ext}`;
+    btnDownload.onclick = () => {
+        const start = generatedData[0].year;
+        const end = generatedData[generatedData.length - 1].year;
+        const filename = `sui-gen-${start}-${end}${config.ext}`;
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+}
+
+// Finish Generation
+function finishGeneration() {
+    updateOutput();
     statusText.textContent = 'Generation Complete!';
     resetUI();
     
     // Enable Actions
     btnCopy.disabled = false;
     btnDownload.disabled = false;
-    
-    // Setup Download
-    btnDownload.onclick = () => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'sui-gen-manifest.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
-
-    // Setup Copy
-    btnCopy.onclick = () => {
-        navigator.clipboard.writeText(jsonString).then(() => {
-            const originalText = btnCopy.textContent;
-            btnCopy.textContent = 'Copied!';
-            setTimeout(() => btnCopy.textContent = originalText, 2000);
-        });
-    };
 }
+
+// Handle Format Change
+formatSelect.addEventListener('change', () => {
+    if (generatedData) {
+        updateOutput();
+    }
+});
 
 // Reset UI State
 function resetUI() {

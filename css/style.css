@@ -55,10 +55,9 @@ aside.bg-light {
 /* Background Pattern - subtle "Asanoha" or lattice */
 .bg-pattern {
     background-color: #ffffff;
-    opacity: 0.4;
-    background-image:  linear-gradient(30deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0), linear-gradient(150deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0), linear-gradient(30deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0), linear-gradient(150deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0), linear-gradient(60deg, #f5f5f5 25%, transparent 25.5%, transparent 75%, #f5f5f5 75%, #f5f5f5), linear-gradient(60deg, #f5f5f5 25%, transparent 25.5%, transparent 75%, #f5f5f5 75%, #f5f5f5);
-    background-size: 40px 70px;
-    background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M0 20 L20 0 L40 20 L20 40 Z' fill='none' stroke='%23888' stroke-width='0.5'/%3E%3Cpath d='M-20 20 L0 0 L20 20 L0 40 Z' fill='none' stroke='%23888' stroke-width='0.5'/%3E%3Cpath d='M20 20 L40 0 L60 20 L40 40 Z' fill='none' stroke='%23888' stroke-width='0.5'/%3E%3C/svg%3E");
+    background-size: 40px 40px;
 }
 
 .backdrop-blur {
@@ -156,6 +155,11 @@ code {
     color: var(--sui-ink) !important;
 }
 
+[data-bs-theme="dark"] .logo-symbol {
+    color: #222226;
+    box-shadow: 0 0 0 2px #222226, 0 0 0 4px var(--sui-red);
+}
+
 [data-bs-theme="dark"] aside.bg-light {
     background-color: #1e1e22 !important;
     border-color: rgba(255,255,255,0.08) !important;
@@ -168,10 +172,10 @@ code {
 
 [data-bs-theme="dark"] .bg-pattern {
     background-color: #1a1a1e;
-    opacity: 0.15;
-    background-image: linear-gradient(30deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333), linear-gradient(150deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333), linear-gradient(30deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333), linear-gradient(150deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333), linear-gradient(60deg, #2a2a2a 25%, transparent 25.5%, transparent 75%, #2a2a2a 75%, #2a2a2a), linear-gradient(60deg, #2a2a2a 25%, transparent 25.5%, transparent 75%, #2a2a2a 75%, #2a2a2a);
-    background-size: 40px 70px;
-    background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+    opacity: 0.2;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M0 20 L20 0 L40 20 L20 40 Z' fill='none' stroke='%23444' stroke-width='0.5'/%3E%3Cpath d='M-20 20 L0 0 L20 20 L0 40 Z' fill='none' stroke='%23444' stroke-width='0.5'/%3E%3Cpath d='M20 20 L40 0 L60 20 L40 40 Z' fill='none' stroke='%23444' stroke-width='0.5'/%3E%3C/svg%3E");
+    background-size: 40px 40px;
+    background-position: 0 0;
 }
 
 [data-bs-theme="dark"] main.bg-white {

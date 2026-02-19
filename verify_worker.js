@@ -17,22 +17,38 @@ try {
         postMessage: function(msg) {
             if (msg.type === 'complete') {
                 console.log("[Worker] Complete!");
-                // Inspect 2028 data
-                const y2028 = msg.data[2028];
-                if (y2028) {
-                    console.log("2028 Data:", JSON.stringify(y2028, null, 2));
-                    if (y2028.newMoonUtc && y2028.newMoonUtc.includes("15:12")) {
+                const data = msg.data; 
+                // data is now an array
+                const year2028 = data.find(d => d.year === 2028);
+                
+                if (year2028) {
+                    console.log("2028 Data:", JSON.stringify(year2028, null, 2));
+                    
+                    const expectedCny = "2028-01-26";
+                    const expectedMoonTime = "15:12";
+                    
+                    if (year2028.cny === expectedCny && 
+                        year2028.newMoonUtc.includes(expectedMoonTime)) {
                         console.log("SUCCESS: 2028 New Moon is correct!");
                     } else {
-                        console.log("FAILURE: 2028 New Moon mismatch (Expected ~15:12)");
+                        console.error("FAILURE: 2028 calculations mismatch.");
+                        console.error(`Expected CNY: ${expectedCny}, Got: ${year2028.cny}`);
+                        console.error(`Expected ~${expectedMoonTime}, Got: ${year2028.newMoonUtc}`);
                     }
                 } else {
-                    console.log("FAILURE: 2028 data missing.");
+                    console.error("FAILURE: 2028 data not found in response.");
                 }
-            } else if (msg.type === 'error') {
-                console.error("[Worker] Error:", msg.data);
+
+                // Verify Array Structure
+                if (Array.isArray(data) && data.length > 0) {
+                    console.log(`SUCCESS: Worker returned array with ${data.length} items.`);
+                } else {
+                    console.error("FAILURE: Worker did not return an array.");
+                }
             } else if (msg.type === 'progress') {
                 // console.log(`[Worker] Progress: ${msg.data.current}/${msg.data.total}`);
+            } else if (msg.type === 'error') {
+                console.error("[Worker] Error:", msg.data);
             }
         }
     };

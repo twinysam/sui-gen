@@ -23,7 +23,7 @@ self.onmessage = function(e) {
 };
 
 function generateManifest({ startYear, endYear, fields }) {
-    const data = {};
+    const data = [];
     const total = endYear - startYear + 1;
     let current = 0;
     
@@ -36,11 +36,11 @@ function generateManifest({ startYear, endYear, fields }) {
             const lunarNewYear = Lunar.fromYmd(year, 1, 1);
             const solarObj = lunarNewYear.getSolar();
             
-            const yearData = {};
+            const yearData = { year };
             
             // CNY Date
             if (fields.cnyDate) {
-                yearData.cnyDate = solarObj.toYmd();
+                yearData.cny = solarObj.toYmd();
             }
             
             // Zodiac (Sheng Xiao)
@@ -92,7 +92,8 @@ function generateManifest({ startYear, endYear, fields }) {
             }
             
             if (fields.leapMonth) {
-                yearData.leapMonth = lunarYearObj.getLeapMonth();
+                const lm = lunarYearObj.getLeapMonth();
+                yearData.leapMonth = lm > 0 ? lm : null;
             }
             
             // New Moon UTC
@@ -128,7 +129,7 @@ function generateManifest({ startYear, endYear, fields }) {
             }
 
             // Populate Main Object
-            data[year] = yearData;
+            data.push(yearData);
 
             // Progress Update
             current++;
