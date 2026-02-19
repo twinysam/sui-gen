@@ -18,11 +18,24 @@ Sui-Gen goes beyond simple date conversion. It computes a rich set of traditiona
 *   **Solar Terms (Jie Qi)**: Specifically calculates the **Lìchūn (Start of Spring)** date, checking Solar Feb 3–5 to ensure accuracy even when it falls before the Lunar New Year.
 *   **Astronomical Accuracy**: Uses high-precision algorithms for the **New Moon (Shuo)** timestamp, provided in UTC ISO-8601 format.
 
-### Why It Is Accurate
-Sui-Gen is built upon the robust [lunar-javascript](https://github.com/6tail/lunar-javascript) library, a comprehensive implementation of the Chinese calendar system. To ensure maximum precision:
-*   **Calculation Off-Main-Thread**: All heavy lunisolar computations run in a dedicated Web Worker, preventing UI freezes even when generating centuries of data.
-*   **Native Library APIs**: We leverage the library's native `LunarYear` and `Solar` classes for verifying leap months and solar terms, avoiding fragile manual calculations.
-*   **High-Precision Shuo**: Astronomical new moon times are derived using high-precision algorithms (ShouXing) to ensure the lunar month boundaries are strictly correct.
+### Accuracy & Reliability
+Sui-Gen is built upon the robust [lunar-javascript](https://github.com/6tail/lunar-javascript) library and enhanced with custom reliability gating for extreme timeframes.
+
+#### Supported Range: CE 619 to CE 30,000+
+We have implemented specialized logic to handle long-term date generation, categorization fields into three reliability tiers:
+
+| Field Type | Reliability | Valid Range | Notes |
+| :--- | :--- | :--- | :--- |
+| **Cycle Fields** | **100% Reliable** | **Infinite** | Fields like *Zodiac*, *Elements*, and *Ganzhi* are calculated via pure arithmetic and remain scientifically accurate for any year, past or future. |
+| **Calendar Dates** | **High Precision** | **CE 619 – 3000** | *CNY* and *Li Chun* dates match historical records and standard astronomical models. |
+| **Precise Times** | **Approximate** | **CE 2050 – 2300** | Due to ΔT (Earth's rotational braking), precise times like *New Moon UTC* become approximate after 2050 (± minutes) and represent a "best guess" extrapolation. |
+
+> **Scientific Basis**: Our ΔT extrapolations align with the models proposed by [Morrison & Stephenson (2004)](https://adsabs.harvard.edu/full/2004JHA....35..327M), the standard for historical astronomical timing.
+
+#### Robustness Features
+*   **Arithmetic Fallbacks**: If astronomical calculations fail for extreme future dates (e.g., Year 22,524), the system automatically falls back to pure arithmetic for cycle fields, ensuring valid metadata generation without crashing.
+*   **Smart Gating**: The UI and Worker automatically disable fields that are scientifically unsafe for the requested range (e.g., disabling *New Moon UTC* after CE 2300).
+*   **Off-Main-Thread**: All heavy lunisolar computations run in a dedicated Web Worker to keep the UI responsive.
 
 ## Output Formats
 Sui-Gen supports exporting your generated dataset in multiple formats, ensuring compatibility with any data pipeline:
