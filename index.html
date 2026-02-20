@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,220 +10,274 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
     <!-- Highlight.js Themes (light + dark) -->
-    <link rel="stylesheet" id="hljs-light" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
-    <link rel="stylesheet" id="hljs-dark" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css" disabled>
+    <link rel="stylesheet" id="hljs-light"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css" disabled>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
-<div class="container-fluid layout-container d-flex flex-column">
-    <!-- Header -->
-    <header class="row py-3 border-bottom border-secondary-subtle align-items-center bg-body-tertiary">
-        <div class="col px-4 d-flex align-items-center">
-            <div class="logo-symbol me-3">歲</div>
-            <h1 class="h4 m-0 fw-bold text-dark">Sui-Gen <span class="fw-light text-secondary">| Lunisolar Calendar Generator</span></h1>
-        </div>
-        <div class="col-auto px-4">
-            <div class="btn-group btn-group-sm theme-toggle" role="group" aria-label="Theme toggle">
-                <input type="radio" class="btn-check" name="theme" id="themeLight" value="light" autocomplete="off">
-                <label class="btn btn-outline-secondary" for="themeLight" title="Light mode">☀️</label>
-                <input type="radio" class="btn-check" name="theme" id="themeAuto" value="auto" autocomplete="off" checked>
-                <label class="btn btn-outline-secondary" for="themeAuto" title="Auto (system)">Auto</label>
-                <input type="radio" class="btn-check" name="theme" id="themeDark" value="dark" autocomplete="off">
-                <label class="btn btn-outline-secondary" for="themeDark" title="Dark mode">🌙</label>
+    <div class="container-fluid layout-container d-flex flex-column">
+        <!-- Header -->
+        <header class="row py-3 border-bottom border-secondary-subtle align-items-center bg-body-tertiary">
+            <div class="col px-4 d-flex align-items-center">
+                <div class="logo-symbol me-3">歲</div>
+                <h1 class="h4 m-0 fw-bold text-dark">Sui-Gen <span class="fw-light text-secondary">| Lunisolar Calendar
+                        Generator</span></h1>
             </div>
-        </div>
-    </header>
-
-    <div class="row flex-grow-1 overflow-hidden layout-row">
-        <!-- Info Panel (Order: 3 on Mobile, 1 on Desktop) -->
-        <aside class="col-12 col-md-3 col-lg-3 info-panel d-flex flex-column p-0 border-end border-secondary-subtle overflow-hidden order-3 order-md-1">
-            <div class="p-3 border-bottom border-secondary-subtle">
-                <h6 class="text-uppercase fw-bold text-secondary small mb-0">Welcome to Sui-Gen</h6>
-            </div>
-            <div class="p-3 flex-grow-1 overflow-auto">
-                <p class="small text-secondary mb-4">
-                    Sui-Gen is a precision lunisolar calendar generator that produces structured datasets for Lunar New Year metadata across large year ranges. It calculates each year’s Chinese New Year date and enriches it with traditional calendrical attributes such as the <a href="https://en.wikipedia.org/wiki/Chinese_zodiac" target="_blank" class="text-decoration-none text-reset border-bottom border-secondary">zodiac animal</a>, <a href="https://en.wikipedia.org/wiki/Wuxing_(Chinese_philosophy)" target="_blank" class="text-decoration-none text-reset border-bottom border-secondary">Wu Xing</a> element, and <a href="https://en.wikipedia.org/wiki/Sexagenary_cycle" target="_blank" class="text-decoration-none text-reset border-bottom border-secondary">Ganzhi</a> (sexagenary cycle) designation, with support for leap-month logic and related solar-term markers. The tool is designed as a practical data pipeline for developers, allowing you to export reliable precomputed calendar tables that can be embedded into other projects without requiring heavy runtime lunar calendar libraries.
-                </p>
-                
-                <div id="dynamicYearInfo">
-                    <p class="text-muted small fst-italic">Loading lunar data...</p>
+            <div class="col-auto px-4">
+                <div class="btn-group btn-group-sm theme-toggle" role="group" aria-label="Theme toggle">
+                    <input type="radio" class="btn-check" name="theme" id="themeLight" value="light" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="themeLight" title="Light mode">☀️</label>
+                    <input type="radio" class="btn-check" name="theme" id="themeAuto" value="auto" autocomplete="off"
+                        checked>
+                    <label class="btn btn-outline-secondary" for="themeAuto" title="Auto (system)">Auto</label>
+                    <input type="radio" class="btn-check" name="theme" id="themeDark" value="dark" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="themeDark" title="Dark mode">🌙</label>
                 </div>
             </div>
-            <div class="p-3 border-top border-secondary-subtle">
-                <p class="small text-secondary m-0">
-                    To learn more about this project or contribute to it,
-                    <a href="https://github.com/twinysam/Sui-Gen" target="_blank">check us on GitHub</a>.
-                </p>
-            </div>
-        </aside>
+        </header>
 
-        <!-- Sidebar (Order: 1 on Mobile, 2 on Desktop) -->
-        <aside class="col-12 col-md-3 col-lg-2 bg-light border-end border-secondary-subtle d-flex flex-column p-0 order-1 order-md-2">
-            <div class="p-3 border-bottom border-secondary-subtle">
-                <h6 class="text-uppercase fw-bold text-secondary small mb-3">Time Range</h6>
-                <div class="row g-2">
-                    <div class="col-6">
-                        <label for="startYear" class="form-label small">Start Year</label>
-                        <input type="number" class="form-control form-control-sm" id="startYear" value="2024" min="1900" max="2100">
-                    </div>
-                    <div class="col-6">
-                        <label for="endYear" class="form-label small">End Year</label>
-                        <input type="number" class="form-control form-control-sm" id="endYear" value="2025" min="1900" max="2100">
+        <div class="row flex-grow-1 overflow-hidden layout-row">
+            <!-- Info Panel (Order: 3 on Mobile, 1 on Desktop) -->
+            <aside
+                class="col-12 col-md-3 col-lg-3 info-panel d-flex flex-column p-0 border-end border-secondary-subtle overflow-hidden order-3 order-md-1">
+                <div class="p-3 border-bottom border-secondary-subtle">
+                    <h6 class="text-uppercase fw-bold text-secondary small mb-0">Welcome to Sui-Gen</h6>
+                </div>
+                <div class="p-3 flex-grow-1 overflow-auto">
+                    <p class="small text-secondary mb-4">
+                        Sui-Gen is a precision lunisolar calendar generator that fetches high-precision astronomical
+                        data from the <strong>NASA JPL Horizons API</strong> (DE440/DE441 ephemerides) to calculate
+                        exact New Moon timings and Solar Terms, following Yuk Tung Liu's Chinese Calendar algorithm.
+                        Each year is enriched with the <a href="https://en.wikipedia.org/wiki/Chinese_zodiac"
+                            target="_blank"
+                            class="text-decoration-none text-reset border-bottom border-secondary">zodiac animal</a>, <a
+                            href="https://en.wikipedia.org/wiki/Wuxing_(Chinese_philosophy)" target="_blank"
+                            class="text-decoration-none text-reset border-bottom border-secondary">Wu Xing</a> element,
+                        and <a href="https://en.wikipedia.org/wiki/Sexagenary_cycle" target="_blank"
+                            class="text-decoration-none text-reset border-bottom border-secondary">Ganzhi</a>
+                        designation, with full leap-month detection. An offline fallback is available if the API is
+                        unreachable.
+                    </p>
+
+                    <div id="dynamicYearInfo">
+                        <p class="text-muted small fst-italic">Loading lunar data...</p>
                     </div>
                 </div>
-            </div>
+                <div class="p-3 border-top border-secondary-subtle">
+                    <p class="small text-secondary m-0">
+                        To learn more about this project or contribute to it,
+                        <a href="https://github.com/twinysam/Sui-Gen" target="_blank">check us on GitHub</a>.
+                    </p>
+                </div>
+            </aside>
 
-            <div class="p-3 flex-grow-1 overflow-auto">
-                <h6 class="text-uppercase fw-bold text-secondary small mb-3">Data Fields</h6>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="fieldCnyDate" checked>
-                    <label class="form-check-label small" for="fieldCnyDate">Diff to Gregorian CNY <span id="noteCnyDate" class="text-danger extra-small"></span></label>
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="fieldZodiac" checked>
-                    <label class="form-check-label small" for="fieldZodiac">Zodiac Animal <span id="noteZodiac" class="text-danger extra-small"></span></label>
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="fieldElement" checked>
-                    <label class="form-check-label small" for="fieldElement">Element (Wu Xing) <span id="noteElement" class="text-danger extra-small"></span></label>
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="fieldGanzhi" checked>
-                    <label class="form-check-label small" for="fieldGanzhi">Ganzhi Name <span id="noteGanzhi" class="text-danger extra-small"></span></label>
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="fieldLiChun">
-                    <label class="form-check-label small" for="fieldLiChun">Li Chun Date <span id="noteLiChun" class="text-danger extra-small"></span></label>
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="fieldYearLength">
-                    <label class="form-check-label small" for="fieldYearLength">Year Length (Days) <span id="noteYearLength" class="text-danger extra-small"></span></label>
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="fieldLeapMonth">
-                    <label class="form-check-label small" for="fieldLeapMonth">Leap Month (Runyue) <span id="noteLeapMonth" class="text-danger extra-small"></span></label>
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="fieldNewMoonUtc">
-                    <label class="form-check-label small" for="fieldNewMoonUtc">New Moon (UTC) <span id="noteNewMoonUtc" class="text-danger extra-small"></span></label>
+            <!-- Sidebar (Order: 1 on Mobile, 2 on Desktop) -->
+            <aside
+                class="col-12 col-md-3 col-lg-2 bg-light border-end border-secondary-subtle d-flex flex-column p-0 order-1 order-md-2">
+                <div class="p-3 border-bottom border-secondary-subtle">
+                    <h6 class="text-uppercase fw-bold text-secondary small mb-3">Time Range</h6>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label for="startYear" class="form-label small">Start Year</label>
+                            <input type="number" class="form-control form-control-sm" id="startYear" value="2024"
+                                min="1900" max="2100">
+                        </div>
+                        <div class="col-6">
+                            <label for="endYear" class="form-label small">End Year</label>
+                            <input type="number" class="form-control form-control-sm" id="endYear" value="2025"
+                                min="1900" max="2100">
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Field Warning Banner -->
-                <div id="fieldWarningBanner" class="alert alert-warning extra-small mt-3 p-2 d-none" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <span id="fieldWarningText"></span>
+                <div class="p-3 flex-grow-1 overflow-auto">
+                    <h6 class="text-uppercase fw-bold text-secondary small mb-3">Data Fields</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="fieldCnyDate" checked>
+                        <label class="form-check-label small" for="fieldCnyDate">Diff to Gregorian CNY <span
+                                id="noteCnyDate" class="text-danger extra-small"></span></label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="fieldZodiac" checked>
+                        <label class="form-check-label small" for="fieldZodiac">Zodiac Animal <span id="noteZodiac"
+                                class="text-danger extra-small"></span></label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="fieldElement" checked>
+                        <label class="form-check-label small" for="fieldElement">Element (Wu Xing) <span
+                                id="noteElement" class="text-danger extra-small"></span></label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="fieldGanzhi" checked>
+                        <label class="form-check-label small" for="fieldGanzhi">Ganzhi Name <span id="noteGanzhi"
+                                class="text-danger extra-small"></span></label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="fieldLiChun">
+                        <label class="form-check-label small" for="fieldLiChun">Li Chun Date <span id="noteLiChun"
+                                class="text-danger extra-small"></span></label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="fieldYearLength">
+                        <label class="form-check-label small" for="fieldYearLength">Year Length (Days) <span
+                                id="noteYearLength" class="text-danger extra-small"></span></label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="fieldLeapMonth">
+                        <label class="form-check-label small" for="fieldLeapMonth">Leap Month (Runyue) <span
+                                id="noteLeapMonth" class="text-danger extra-small"></span></label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="fieldNewMoonUtc">
+                        <label class="form-check-label small" for="fieldNewMoonUtc">New Moon (UTC) <span
+                                id="noteNewMoonUtc" class="text-danger extra-small"></span></label>
+                    </div>
+
+                    <!-- Field Warning Banner -->
+                    <div id="fieldWarningBanner" class="alert alert-warning extra-small mt-3 p-2 d-none" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span id="fieldWarningText"></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="p-3 border-top border-secondary-subtle">
-                <button id="btnGenerate" class="btn btn-dark w-100 shadow-sm">
-                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="spinner"></span>
-                    <span id="btnText">Generate Calendar</span>
-                </button>
-                <div class="progress mt-3" style="height: 4px; display: none;" id="progressBarContainer">
-                    <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" id="progressBar"></div>
+                <div class="p-3 border-top border-secondary-subtle">
+                    <button id="btnGenerate" class="btn btn-dark w-100 shadow-sm">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"
+                            id="spinner"></span>
+                        <span id="btnText">Generate Calendar</span>
+                    </button>
+                    <div class="progress mt-3" style="height: 4px; display: none;" id="progressBarContainer">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" id="progressBar"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2 mb-3">
+                        <small class="text-secondary" id="statusText">Ready</small>
+                    </div>
+
+                    <button type="button"
+                        class="btn btn-link extra-small text-secondary p-0 text-decoration-none fw-bold"
+                        data-bs-toggle="modal" data-bs-target="#reliabilityModal">
+                        <i class="bi bi-info-circle me-1"></i> About data reliability
+                    </button>
                 </div>
-                <div class="d-flex justify-content-between mt-2 mb-3">
-                    <small class="text-secondary" id="statusText">Ready</small>
+            </aside>
+
+            <!-- Main Stage (Order: 2 on Mobile, 3 on Desktop) -->
+            <main
+                class="col-12 col-md-6 col-lg-7 d-flex flex-column h-100 bg-white p-0 position-relative order-2 order-md-3">
+                <!-- Background Pattern -->
+                <div class="bg-pattern position-absolute w-100 h-100 z-0"></div>
+
+                <!-- Toolbar -->
+                <div
+                    class="d-flex justify-content-between align-items-center p-3 border-bottom border-light-subtle z-1 bg-white bg-opacity-75 backdrop-blur">
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="formatSelect" class="text-secondary small fw-bold">Format:</label>
+                        <select class="form-select form-select-sm" id="formatSelect" style="width: auto;">
+                            <option value="json" selected>JSON</option>
+                            <option value="csv">CSV</option>
+                            <option value="yaml">YAML</option>
+                            <option value="sql">SQL</option>
+                            <option value="md">Markdown</option>
+                        </select>
+                    </div>
+                    <!-- Action Buttons -->
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnCopy" disabled>Copy to
+                            Clipboard</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="btnDownload" disabled>Download
+                            .json</button>
+                    </div>
                 </div>
 
-                <button type="button" class="btn btn-link extra-small text-secondary p-0 text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#reliabilityModal">
-                    <i class="bi bi-info-circle me-1"></i> About data reliability
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Stage (Order: 2 on Mobile, 3 on Desktop) -->
-        <main class="col-12 col-md-6 col-lg-7 d-flex flex-column h-100 bg-white p-0 position-relative order-2 order-md-3">
-            <!-- Background Pattern -->
-            <div class="bg-pattern position-absolute w-100 h-100 z-0"></div>
-
-            <!-- Toolbar -->
-            <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-light-subtle z-1 bg-white bg-opacity-75 backdrop-blur">
-                <div class="d-flex align-items-center gap-2">
-                    <label for="formatSelect" class="text-secondary small fw-bold">Format:</label>
-                    <select class="form-select form-select-sm" id="formatSelect" style="width: auto;">
-                        <option value="json" selected>JSON</option>
-                        <option value="csv">CSV</option>
-                        <option value="yaml">YAML</option>
-                        <option value="sql">SQL</option>
-                        <option value="md">Markdown</option>
-                    </select>
+                <!-- Editor/Preview Area -->
+                <div class="flex-grow-1 overflow-hidden p-4 z-1">
+                    <div class="code-preview-container border rounded bg-light h-100 position-relative">
+                        <pre
+                            class="m-0 p-3 h-100 overflow-auto"><code id="codePreview" class="language-json text-muted">Click "Generate Calendar" to begin...</code></pre>
+                    </div>
                 </div>
-                <!-- Action Buttons -->
-               <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-secondary btn-sm" id="btnCopy" disabled>Copy to Clipboard</button>
-                    <button type="button" class="btn btn-primary btn-sm" id="btnDownload" disabled>Download .json</button>
-                </div>
-            </div>
 
-            <!-- Editor/Preview Area -->
-            <div class="flex-grow-1 overflow-hidden p-4 z-1">
-                <div class="code-preview-container border rounded bg-light h-100 position-relative">
-                     <pre class="m-0 p-3 h-100 overflow-auto"><code id="codePreview" class="language-json text-muted">Click "Generate Calendar" to begin...</code></pre>
-                </div>
-            </div>
+                <!-- Footer -->
+                <footer class="p-2 border-top border-light-subtle text-end z-1 bg-white">
+                    <small class="text-secondary me-3">Total Size: <span id="totalSize">0 KB</span></small>
+                    <small class="text-secondary">Preview Limit: <span id="previewLimit">1000 lines</span></small>
+                </footer>
 
-            <!-- Footer -->
-             <footer class="p-2 border-top border-light-subtle text-end z-1 bg-white">
-                <small class="text-secondary me-3">Total Size: <span id="totalSize">0 KB</span></small>
-                <small class="text-secondary">Preview Limit: <span id="previewLimit">1000 lines</span></small>
-            </footer>
-
-        </main>
+            </main>
+        </div>
     </div>
-</div>
 
     <!-- Reliability Modal -->
-    <div class="modal fade" id="reliabilityModal" tabindex="-1" aria-labelledby="reliabilityModalLabel" aria-hidden="true">
+    <div class="modal fade" id="reliabilityModal" tabindex="-1" aria-labelledby="reliabilityModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content sui-modal border-0 shadow-lg">
                 <div class="modal-header border-bottom border-light-subtle">
                     <h5 class="modal-title fw-bold d-flex align-items-center" id="reliabilityModalLabel">
-                        <span class="logo-symbol me-2 d-inline-block" style="width: 28px; height: 28px; line-height: 28px; font-size: 1.1rem; box-shadow: none; border: none;">歲</span>
+                        <span class="logo-symbol me-2 d-inline-block"
+                            style="width: 28px; height: 28px; line-height: 28px; font-size: 1.1rem; box-shadow: none; border: none;">歲</span>
                         Data Reliability Info
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-4">
-                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">The Core Engine</h6>
-                        <p class="sui-modal-text small">The library uses astronomical tables backed by historical records up to 1960, and highly complex formula extrapolation beyond that point.</p>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Delta-T (ΔT) Drift</h6>
-                        <p class="sui-modal-text small">The difference between Terrestrial Time and Universal Time (due to Earth's rotation slowing down) grows unpredictably over centuries. This affects the precision of specific timings like New Moons.</p>
+                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Astronomical
+                            Precision</h6>
+                        <p class="sui-modal-text small">Sui-Gen integrates directly with the <strong>NASA JPL Horizons
+                                API</strong>, fetching high-precision DE440/DE441 ephemerides data (and interpolating)
+                            to calculate the exact timing of New Moons and Solar Terms.</p>
                     </div>
 
                     <div class="mb-4">
-                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Cycle Stability</h6>
-                        <p class="sui-modal-text small">Lunisolar cycle fields (Zodiac, Elements, Ganzhi) are calculated via pure arithmetic and are 100% reliable for any year, as they do not depend on astronomical precision.</p>
+                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Hard Data
+                            Limits</h6>
+                        <p class="sui-modal-text small">Because JPL Horizons dataset boundaries are strictly adhered to,
+                            highly accurate calendar generations are limited to the years between <strong>619 CE and
+                                17191 CE</strong>. Generating outside this range will return blank fields for
+                            astronomically-dependent parameters.</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Cycle
+                            Stability</h6>
+                        <p class="sui-modal-text small">Lunisolar cycle fields (Zodiac, Elements, Ganzhi) are calculated
+                            via continuous pure arithmetic and are 100% reliable infinitely for any year.</p>
                     </div>
 
                     <div class="p-3 sui-modal-ref rounded border border-light-subtle extra-small">
-                        <i class="bi bi-book me-2"></i> Reference: <a href="https://adsabs.harvard.edu/full/2004JHA....35..327M" target="_blank" class="text-danger text-decoration-none fw-bold">Morrison & Stephenson (2004)</a> for ΔT extrapolation details.
+                        <i class="bi bi-book me-2"></i> Reference: <a
+                            href="https://ytliu0.github.io/ChineseCalendar/rules_simp.html" target="_blank"
+                            class="text-danger text-decoration-none fw-bold">Calculation of the Chinese Calendar (Yuk
+                            Tung Liu)</a>
                     </div>
                 </div>
                 <div class="modal-footer border-top border-light-subtle bg-light bg-opacity-50">
-                    <button type="button" class="btn btn-dark w-100 shadow-sm py-2" data-bs-dismiss="modal">I Understand</button>
+                    <button type="button" class="btn btn-dark w-100 shadow-sm py-2" data-bs-dismiss="modal">I
+                        Understand</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/json.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/yaml.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/sql.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/markdown.min.js"></script>
-<script src="js/lunar.min.js"></script>
-<script type="module" src="js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/json.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/yaml.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/sql.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/markdown.min.js"></script>
+    <script src="js/lunar.min.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
+
 </html>

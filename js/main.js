@@ -25,7 +25,7 @@ const fieldWarningText = document.getElementById('fieldWarningText');
 
 // Reliability Tiers (Hard Limits and Warnings)
 const FIELD_RANGES = {
-    newMoonUtc: { warnBefore: null, warnAfter: 2050, hardBefore: 619, hardAfter: 17191, id: 'fieldNewMoonUtc', noteId: 'noteNewMoonUtc' },
+    newMoonUtc: { warnBefore: null, warnAfter: null, hardBefore: 619, hardAfter: 17191, id: 'fieldNewMoonUtc', noteId: 'noteNewMoonUtc' },
     liChun:     { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldLiChun', noteId: 'noteLiChun' },
     cnyDate:    { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldCnyDate', noteId: 'noteCnyDate' },
     leapMonth:  { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldLeapMonth', noteId: 'noteLeapMonth' },
@@ -300,14 +300,7 @@ function validateFieldAvailability() {
             // The requirement says "re-enable it".
         }
 
-        // Warning Logic (only if field is selected)
-        if (checkbox.checked) {
-            if (range.warnAfter !== null && endYear > range.warnAfter) {
-                if (fieldKey === 'newMoonUtc') {
-                    warningMessages.push(`<strong>New Moon UTC:</strong> values after ${range.warnAfter} are extrapolated from a parabolic ΔT model and may have errors exceeding 10 minutes. Values are omitted after ${range.hardAfter}.`);
-                }
-            }
-        }
+        // Removed outdated Delta-T warning logic since JPL handles it natively
     }
 
     if (warningMessages.length > 0) {
