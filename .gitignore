@@ -2,3 +2,14 @@ verify_lunar.js
 verify_worker.js
 verify_formatters.js
 reproduce_bug.js
+
+# Test Scripts and API Data
+test_*.js
+sun.txt
+moon.txt
+
+# Proxies
+cloudflare-worker.js
+
+# JSON files
+*.json

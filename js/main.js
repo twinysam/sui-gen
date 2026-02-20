@@ -25,16 +25,15 @@ const fieldWarningText = document.getElementById('fieldWarningText');
 
 // Reliability Tiers (Hard Limits and Warnings)
 const FIELD_RANGES = {
-    newMoonUtc: { warnBefore: null, warnAfter: 2050, hardBefore: 619, hardAfter: 2300, id: 'fieldNewMoonUtc', noteId: 'noteNewMoonUtc' },
-    liChun:     { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 3000, id: 'fieldLiChun', noteId: 'noteLiChun' },
-    cnyDate:    { warnBefore: null, warnAfter: null,  hardBefore: 500, hardAfter: 3000, id: 'fieldCnyDate', noteId: 'noteCnyDate' },
-    leapMonth:  { warnBefore: null, warnAfter: null,  hardBefore: 500, hardAfter: 3000, id: 'fieldLeapMonth', noteId: 'noteLeapMonth' },
-    yearLength: { warnBefore: null, warnAfter: null,  hardBefore: 500, hardAfter: 3000, id: 'fieldYearLength', noteId: 'noteYearLength' },
+    newMoonUtc: { warnBefore: null, warnAfter: 2050, hardBefore: 619, hardAfter: 17191, id: 'fieldNewMoonUtc', noteId: 'noteNewMoonUtc' },
+    liChun:     { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldLiChun', noteId: 'noteLiChun' },
+    cnyDate:    { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldCnyDate', noteId: 'noteCnyDate' },
+    leapMonth:  { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldLeapMonth', noteId: 'noteLeapMonth' },
+    yearLength: { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldYearLength', noteId: 'noteYearLength' },
     zodiac:     { warnBefore: null, warnAfter: null,  hardBefore: null, hardAfter: null, id: 'fieldZodiac', noteId: 'noteZodiac' },
     ganzhi:     { warnBefore: null, warnAfter: null,  hardBefore: null, hardAfter: null, id: 'fieldGanzhi', noteId: 'noteGanzhi' },
     element:    { warnBefore: null, warnAfter: null,  hardBefore: null, hardAfter: null, id: 'fieldElement', noteId: 'noteElement' },
 };
-
 // Format Configuration
 const FORMAT_CONFIG = {
     json: { ext: '.json', mime: 'application/json', lang: 'language-json', fn: toJSON },
@@ -109,16 +108,20 @@ function initWorker() {
 
 // Handle Messages from Worker
 function handleWorkerMessage(e) {
-    const { type, data } = e.data;
+    const { type, data, isOffline } = e.data;
 
     if (type === 'progress') {
-        const { current, total, year } = data;
-        const percent = Math.round((current / total) * 100);
-        progressBar.style.width = `${percent}%`;
-        statusText.textContent = `Processing Year ${year}... (${percent}%)`;
+        const { current, total, year, status } = data;
+        if (status) {
+            statusText.textContent = status;
+        } else {
+            const percent = Math.round((current / total) * 100);
+            progressBar.style.width = `${percent}%`;
+            statusText.textContent = `Processing Year ${year}... (${percent}%)`;
+        }
     } else if (type === 'complete') {
         generatedData = data;
-        finishGeneration();
+        finishGeneration(isOffline);
     } else if (type === 'error') {
         handleWorkerError({ message: data });
     }
@@ -235,9 +238,15 @@ function updateOutput() {
 }
 
 // Finish Generation
-function finishGeneration() {
+function finishGeneration(isOffline) {
     updateOutput();
-    statusText.textContent = 'Generation Complete!';
+    
+    if (isOffline) {
+        statusText.innerHTML = 'Generation Complete! <span class="text-warning fw-bold">(Offline Library Fallback)</span>';
+    } else {
+        statusText.innerHTML = 'Generation Complete! <span class="text-success fw-bold">(JPL Horizons Precision)</span>';
+    }
+    
     resetUI();
     
     // Enable Actions
