@@ -89,17 +89,22 @@ function parseHorizonsData(text) {
 // Cloudflare Worker proxy URL provided to enable precise online generation:
 const JPL_API_BASE = 'https://sui-gen-cors.teaboymixing.workers.dev/';
 
-async function fetchHorizonsChunked(target, startYear, endYear) {
+async function fetchHorizonsChunked(target, startYear, endYear, progressBase, progressRange) {
     const key = `${target}_${startYear}_${endYear}`;
     if (API_CACHE.has(key)) return API_CACHE.get(key);
 
+    const totalChunks = Math.ceil((endYear - startYear + 1) / 100);
+    let chunkIdx = 0;
     let allData = [];
+    const label = target === '10' ? 'Sun' : 'Moon';
+
     for (let y = startYear; y <= endYear; y += 100) {
         let chunkEnd = Math.min(y + 99, endYear);
         const startStr = `${y}-01-01`;
         const endStr = `${chunkEnd + 1}-01-01`; 
         
-        self.postMessage({ type: 'progress', data: { status: `Fetching ${target === '10' ? 'Sun' : 'Moon'} (${y}-${chunkEnd})...` }});
+        const pct = Math.round(progressBase + (chunkIdx / totalChunks) * progressRange);
+        self.postMessage({ type: 'progress', data: { current: pct, total: 100, status: `Fetching ${label} ephemerides (${y}–${chunkEnd})...` }});
         
         const url = `${JPL_API_BASE}?format=text&COMMAND='${target}'&CENTER='500@399'&MAKE_EPHEM='YES'&EPHEM_TYPE='OBSERVER'&START_TIME='${startStr}'&STOP_TIME='${endStr}'&STEP_SIZE='12 h'&QUANTITIES='31'`;
         
@@ -112,6 +117,7 @@ async function fetchHorizonsChunked(target, startYear, endYear) {
         
         if (allData.length > 0 && parsed.length > 0 && allData[allData.length-1].time === parsed[0].time) parsed.shift();
         allData = allData.concat(parsed);
+        chunkIdx++;
     }
     
     API_CACHE.set(key, allData);
@@ -168,9 +174,13 @@ async function generateManifest({ startYear, endYear, fields }) {
     const total = endYear - startYear + 1;
 
     try {
-        // Fetch -1 year to +1 year to cover winter solstices mapping thoroughly
-        sunData = await fetchHorizonsChunked('10', startYear - 1, endYear + 1);
-        moonData = await fetchHorizonsChunked('301', startYear - 1, endYear + 1);
+        // Phase 0: Initial connection
+        self.postMessage({ type: 'progress', data: { current: 0, total: 100, status: 'Connecting to JPL Horizons...' } });
+
+        // Phase 1: Fetch Sun (0–40%)
+        sunData = await fetchHorizonsChunked('10', startYear - 1, endYear + 1, 0, 40);
+        // Phase 2: Fetch Moon (40–80%)
+        moonData = await fetchHorizonsChunked('301', startYear - 1, endYear + 1, 40, 40);
     } catch (apiErr) {
         console.warn(`JPL Horizons API failed: ${apiErr.message}. Falling back to offline lunar-javascript...`);
         isOffline = true;
@@ -181,7 +191,8 @@ async function generateManifest({ startYear, endYear, fields }) {
         return;
     }
 
-    self.postMessage({ type: 'progress', data: { status: 'Calculating exact lunar nodes and solar terms...' } });
+    // Phase 3: Interpolation & calendar construction (80%)
+    self.postMessage({ type: 'progress', data: { current: 80, total: 100, status: 'Calculating lunar nodes and solar terms...' } });
 
     // 1. Calculate continuous solar terms & new moons
     const newMoons = [];
@@ -253,8 +264,10 @@ async function generateManifest({ startYear, endYear, fields }) {
         }
     }
 
-    // 3. Process Requested Years
+    // 3. Process Requested Years (80–100%)
     for (let y = startYear; y <= endYear; y++) {
+        const pct = Math.round(80 + ((y - startYear) / total) * 20);
+        self.postMessage({ type: 'progress', data: { current: pct, total: 100, year: y, status: `Assembling year ${y}...` } });
         try {
             const yearData = { year: y };
             let lunarNewYear = null;

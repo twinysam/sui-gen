@@ -111,13 +111,13 @@ function handleWorkerMessage(e) {
     const { type, data, isOffline } = e.data;
 
     if (type === 'progress') {
-        const { current, total, year, status } = data;
-        if (status) {
-            statusText.textContent = status;
-        } else {
+        const { current, total, status } = data;
+        if (current !== undefined && total !== undefined) {
             const percent = Math.round((current / total) * 100);
             progressBar.style.width = `${percent}%`;
-            statusText.textContent = `Processing Year ${year}... (${percent}%)`;
+        }
+        if (status) {
+            statusText.textContent = status;
         }
     } else if (type === 'complete') {
         generatedData = data;
