@@ -54,26 +54,30 @@
                 </div>
                 <div class="p-3 flex-grow-1 overflow-auto">
                     <p class="small text-secondary mb-4">
-                        Sui-Gen is a precision lunisolar calendar generator that fetches high-precision astronomical
-                        data from the <strong>NASA JPL Horizons API</strong> (DE440/DE441 ephemerides) to calculate
-                        exact New Moon timings and Solar Terms, following Yuk Tung Liu's Chinese Calendar algorithm.
-                        Each year is enriched with the <a href="https://en.wikipedia.org/wiki/Chinese_zodiac"
-                            target="_blank"
+                        Sui-Gen is a precision lunisolar calendar generator powered by pre-computed astronomical
+                        data from <strong>NASA JPL's DE440/DE441 planetary ephemerides</strong>, calculated using
+                        Skyfield. New Moon timings and Solar Term crossings are resolved to sub-second precision
+                        for the full 619-17190 CE range. Each year is enriched with the
+                        <a href="https://en.wikipedia.org/wiki/Chinese_zodiac" target="_blank"
                             class="text-decoration-none text-reset border-bottom border-secondary">zodiac animal</a>, <a
                             href="https://en.wikipedia.org/wiki/Wuxing_(Chinese_philosophy)" target="_blank"
                             class="text-decoration-none text-reset border-bottom border-secondary">Wu Xing</a> element,
                         and <a href="https://en.wikipedia.org/wiki/Sexagenary_cycle" target="_blank"
                             class="text-decoration-none text-reset border-bottom border-secondary">Ganzhi</a>
-                        designation, with full leap-month detection. An offline fallback is available if the API is
-                        unreachable.
+                        designation, with full leap-month detection.
                     </p>
 
                     <div id="dynamicYearInfo">
                         <p class="text-muted small fst-italic">Loading lunar data...</p>
                     </div>
+
+                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-4" data-bs-toggle="modal"
+                        data-bs-target="#reliabilityModal">
+                        <i class="bi bi-info-circle me-2"></i>About data reliability
+                    </button>
                 </div>
                 <div class="p-3 border-top border-secondary-subtle">
-                    <p class="small text-secondary m-0">
+                    <p class="small text-secondary mb-0">
                         To learn more about this project or contribute to it,
                         <a href="https://github.com/twinysam/Sui-Gen" target="_blank">check us on GitHub</a>.
                     </p>
@@ -82,7 +86,7 @@
 
             <!-- Sidebar (Order: 1 on Mobile, 2 on Desktop) -->
             <aside
-                class="col-12 col-md-3 col-lg-2 bg-light border-end border-secondary-subtle d-flex flex-column p-0 order-1 order-md-2">
+                class="col-12 col-md-3 col-lg-3 bg-light border-end border-secondary-subtle d-flex flex-column p-0 order-1 order-md-2">
                 <div class="p-3 border-bottom border-secondary-subtle">
                     <h6 class="text-uppercase fw-bold text-secondary small mb-3">Time Range</h6>
                     <div class="row g-2">
@@ -142,6 +146,18 @@
                                 id="noteNewMoonUtc" class="text-danger extra-small"></span></label>
                     </div>
 
+                    <!-- Partial Coverage Toggle -->
+                    <div id="partialCoverageToggle"
+                        class="d-none mt-3 p-2 border rounded border-warning-subtle bg-warning-subtle">
+                        <div class="form-check mb-1">
+                            <input class="form-check-input" type="checkbox" id="fieldPartialCoverage">
+                            <label class="form-check-label small fw-bold" for="fieldPartialCoverage">Allow partial data
+                                coverage</label>
+                        </div>
+                        <p class="extra-small text-secondary mb-0 ps-4">Astronomical fields will be <code>null</code>
+                            for years outside the DE440/DE441 range (619–17190 CE).</p>
+                    </div>
+
                     <!-- Field Warning Banner -->
                     <div id="fieldWarningBanner" class="alert alert-warning extra-small mt-3 p-2 d-none" role="alert">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -161,18 +177,12 @@
                     <div class="d-flex justify-content-between mt-2 mb-3">
                         <small class="text-secondary" id="statusText">Ready</small>
                     </div>
-
-                    <button type="button"
-                        class="btn btn-link extra-small text-secondary p-0 text-decoration-none fw-bold"
-                        data-bs-toggle="modal" data-bs-target="#reliabilityModal">
-                        <i class="bi bi-info-circle me-1"></i> About data reliability
-                    </button>
                 </div>
             </aside>
 
             <!-- Main Stage (Order: 2 on Mobile, 3 on Desktop) -->
             <main
-                class="col-12 col-md-6 col-lg-7 d-flex flex-column h-100 bg-white p-0 position-relative order-2 order-md-3">
+                class="col-12 col-md-6 col-lg-6 d-flex flex-column h-100 bg-white p-0 position-relative order-2 order-md-3">
                 <!-- Background Pattern -->
                 <div class="bg-pattern position-absolute w-100 h-100 z-0"></div>
 
@@ -233,32 +243,46 @@
                     <div class="mb-4">
                         <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Astronomical
                             Precision</h6>
-                        <p class="sui-modal-text small">Sui-Gen integrates directly with the <strong>NASA JPL Horizons
-                                API</strong>, fetching high-precision DE440/DE441 ephemerides data (and interpolating)
-                            to calculate the exact timing of New Moons and Solar Terms.</p>
+                        <p class="sui-modal-text small">Sui-Gen's astronomical data was pre-computed using
+                            <strong>Skyfield</strong> against NASA JPL's <strong>DE440 and DE441</strong> planetary
+                            ephemerides, the same numerical integration models used for interplanetary spacecraft
+                            navigation. New moon moments and solar term crossings were resolved to sub-second precision
+                            and converted to Beijing Time (UTC+8).
+                        </p>
                     </div>
 
                     <div class="mb-4">
-                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Hard Data
-                            Limits</h6>
-                        <p class="sui-modal-text small">Because JPL Horizons dataset boundaries are strictly adhered to,
-                            highly accurate calendar generations are limited to the years between <strong>619 CE and
-                                17191 CE</strong>. Generating outside this range will return blank fields for
-                            astronomically-dependent parameters.</p>
+                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Data
+                            Coverage</h6>
+                        <p class="sui-modal-text small">DE440 (covering 1550-2648 CE) was used where available, as
+                            it includes modelling of the Moon's liquid core and mantle coupling for higher accuracy.
+                            DE441 (covering 619-17190 CE) was used for the historical and far-future ranges
+                            outside DE440's coverage. Accuracy is sub-second within the DE440 range. For dates
+                            outside this range, accuracy degrades gradually due to uncertainty in ΔT (the difference
+                            between Terrestrial Time and Universal Time).</p>
                     </div>
 
                     <div class="mb-4">
                         <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Cycle
                             Stability</h6>
-                        <p class="sui-modal-text small">Lunisolar cycle fields (Zodiac, Elements, Ganzhi) are calculated
-                            via continuous pure arithmetic and are 100% reliable infinitely for any year.</p>
+                        <p class="sui-modal-text small">Zodiac, element, and Ganzhi cycle fields are computed
+                            separately via pure 12- and 60-year cycle arithmetic and are 100% reliable for any
+                            year.</p>
                     </div>
 
                     <div class="p-3 sui-modal-ref rounded border border-light-subtle extra-small">
-                        <i class="bi bi-book me-2"></i> Reference: <a
-                            href="https://ytliu0.github.io/ChineseCalendar/rules_simp.html" target="_blank"
-                            class="text-danger text-decoration-none fw-bold">Calculation of the Chinese Calendar (Yuk
-                            Tung Liu)</a>
+                        <div class="mb-2">
+                            <i class="bi bi-book me-2"></i>Reference: <a
+                                href="https://ssd.jpl.nasa.gov/doc/de440_de441.html" target="_blank"
+                                class="text-danger text-decoration-none fw-bold">JPL DE440/DE441 Ephemerides</a>
+                        </div>
+                        <div>
+                            <i class="bi bi-book me-2"></i>Reference: <a
+                                href="https://ytliu0.github.io/ChineseCalendar/rules_simp.html" target="_blank"
+                                class="text-danger text-decoration-none fw-bold">Calculation of the Chinese Calendar
+                                (Yuk
+                                Tung Liu)</a>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-top border-light-subtle bg-light bg-opacity-50">

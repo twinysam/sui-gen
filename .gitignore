@@ -8,8 +8,6 @@ test_*.js
 sun.txt
 moon.txt
 
-# Proxies
-cloudflare-worker.js
-
-# JSON files
+# JSON files EXCEPT sui-gen-jpl-source_619-17190.json
 *.json
+!sui-gen-jpl-source_619-17190.json

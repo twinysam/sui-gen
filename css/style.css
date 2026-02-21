@@ -86,6 +86,8 @@ header {
 code {
     font-family: var(--bs-font-monospace) !important;
     font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 /* Form inputs focus state - Red accent */

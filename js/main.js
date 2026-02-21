@@ -25,11 +25,11 @@ const fieldWarningText = document.getElementById('fieldWarningText');
 
 // Reliability Tiers (Hard Limits and Warnings)
 const FIELD_RANGES = {
-    newMoonUtc: { warnBefore: null, warnAfter: null, hardBefore: 619, hardAfter: 17191, id: 'fieldNewMoonUtc', noteId: 'noteNewMoonUtc' },
-    liChun:     { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldLiChun', noteId: 'noteLiChun' },
-    cnyDate:    { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldCnyDate', noteId: 'noteCnyDate' },
-    leapMonth:  { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldLeapMonth', noteId: 'noteLeapMonth' },
-    yearLength: { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17191, id: 'fieldYearLength', noteId: 'noteYearLength' },
+    newMoonUtc: { warnBefore: null, warnAfter: null, hardBefore: 619, hardAfter: 17190, id: 'fieldNewMoonUtc', noteId: 'noteNewMoonUtc' },
+    liChun:     { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17190, id: 'fieldLiChun', noteId: 'noteLiChun' },
+    cnyDate:    { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17190, id: 'fieldCnyDate', noteId: 'noteCnyDate' },
+    leapMonth:  { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17190, id: 'fieldLeapMonth', noteId: 'noteLeapMonth' },
+    yearLength: { warnBefore: null, warnAfter: null,  hardBefore: 619, hardAfter: 17190, id: 'fieldYearLength', noteId: 'noteYearLength' },
     zodiac:     { warnBefore: null, warnAfter: null,  hardBefore: null, hardAfter: null, id: 'fieldZodiac', noteId: 'noteZodiac' },
     ganzhi:     { warnBefore: null, warnAfter: null,  hardBefore: null, hardAfter: null, id: 'fieldGanzhi', noteId: 'noteGanzhi' },
     element:    { warnBefore: null, warnAfter: null,  hardBefore: null, hardAfter: null, id: 'fieldElement', noteId: 'noteElement' },
@@ -46,6 +46,7 @@ const FORMAT_CONFIG = {
 // Worker Reference
 let worker = null;
 let generatedData = null;
+let cachedJplData = null; // Cache the pre-computed JPL data
 
 // ===========================
 // Theme Management
@@ -108,7 +109,7 @@ function initWorker() {
 
 // Handle Messages from Worker
 function handleWorkerMessage(e) {
-    const { type, data, isOffline } = e.data;
+    const { type, data, usedFallback } = e.data;
 
     if (type === 'progress') {
         const { current, total, status } = data;
@@ -121,7 +122,7 @@ function handleWorkerMessage(e) {
         }
     } else if (type === 'complete') {
         generatedData = data;
-        finishGeneration(isOffline);
+        finishGeneration(usedFallback);
     } else if (type === 'error') {
         handleWorkerError({ message: data });
     }
@@ -135,8 +136,23 @@ function handleWorkerError(error) {
     alert('An error occurred during generation. Check console for details.');
 }
 
+// Pre-load JPL data
+async function loadJplData() {
+    if (cachedJplData) return cachedJplData;
+    try {
+        statusText.textContent = 'Loading ephemeris data...';
+        const res = await fetch('sui-gen-jpl-source_619-17190.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        cachedJplData = await res.json();
+        return cachedJplData;
+    } catch (err) {
+        console.warn('Could not pre-load JPL JSON:', err.message);
+        return null;
+    }
+}
+
 // Start Generation Process
-function startGeneration() {
+async function startGeneration() {
     const startYear = parseInt(document.getElementById('startYear').value, 10);
     const endYear = parseInt(document.getElementById('endYear').value, 10);
     
@@ -168,15 +184,18 @@ function startGeneration() {
     btnText.textContent = 'Generating...';
     progressBarContainer.style.display = 'flex';
     progressBar.style.width = '0%';
-    statusText.textContent = 'Initializing Worker...';
+    statusText.textContent = 'Loading ephemeris data...';
     codePreview.textContent = 'Generating...';
     btnCopy.disabled = true;
     btnDownload.disabled = true;
 
-    // Send to Worker
+    // Load JPL data and pass to Worker
+    const jplData = await loadJplData();
+    const partialCoverage = document.getElementById('fieldPartialCoverage')?.checked || false;
+
     worker.postMessage({
         cmd: 'generate',
-        payload: { startYear, endYear, fields } // Send only necessary data
+        payload: { startYear, endYear, fields, jplData, partialCoverage }
     });
 }
 
@@ -238,13 +257,13 @@ function updateOutput() {
 }
 
 // Finish Generation
-function finishGeneration(isOffline) {
+function finishGeneration(usedFallback) {
     updateOutput();
     
-    if (isOffline) {
-        statusText.innerHTML = 'Generation Complete! <span class="text-warning fw-bold">(Offline Library Fallback)</span>';
+    if (usedFallback) {
+        statusText.innerHTML = 'Generation Complete! <span class="text-success fw-bold">(JPL DE440/DE441)</span> <span class="text-warning fw-bold">+ lunar-javascript fallback for out-of-range years</span>';
     } else {
-        statusText.innerHTML = 'Generation Complete! <span class="text-success fw-bold">(JPL Horizons Precision)</span>';
+        statusText.innerHTML = 'Generation Complete! <span class="text-success fw-bold">(JPL DE440/DE441 Precision)</span>';
     }
     
     resetUI();
@@ -276,7 +295,12 @@ function validateFieldAvailability() {
     const endYear = parseInt(endYearInput.value, 10);
     if (isNaN(startYear) || isNaN(endYear)) return;
 
-    let warningMessages = [];
+    const partialToggle = document.getElementById('partialCoverageToggle');
+    const partialCheckbox = document.getElementById('fieldPartialCoverage');
+    const allowPartial = partialCheckbox && partialCheckbox.checked;
+
+    // Determine if any field has range issues
+    let hasOutOfRange = false;
 
     for (const [fieldKey, range] of Object.entries(FIELD_RANGES)) {
         const checkbox = document.getElementById(range.id);
@@ -287,29 +311,43 @@ function validateFieldAvailability() {
         let hardBlockedAfter = range.hardAfter !== null && endYear > range.hardAfter;
 
         if (hardBlockedBefore || hardBlockedAfter) {
-            checkbox.disabled = true;
-            checkbox.checked = false;
-            noteSpan.textContent = hardBlockedBefore 
-                ? `(not available before ${range.hardBefore} CE)` 
-                : `(not available after ${range.hardAfter} CE)`;
+            hasOutOfRange = true;
+
+            if (allowPartial) {
+                // Partial coverage mode: re-enable fields, show inline note
+                checkbox.disabled = false;
+                noteSpan.textContent = `(null outside ${range.hardBefore}–${range.hardAfter} CE)`;
+            } else {
+                // Default: disable fields out of range
+                checkbox.disabled = true;
+                checkbox.checked = false;
+                noteSpan.textContent = hardBlockedBefore 
+                    ? `(not available before ${range.hardBefore} CE)` 
+                    : `(not available after ${range.hardAfter} CE)`;
+            }
         } else {
             checkbox.disabled = false;
             noteSpan.textContent = "";
-            
-            // Re-enable if it was previously checked or just leave it? 
-            // The requirement says "re-enable it".
         }
-
-        // Removed outdated Delta-T warning logic since JPL handles it natively
     }
 
-    if (warningMessages.length > 0) {
-        fieldWarningText.innerHTML = warningMessages.join('<br>');
-        fieldWarningBanner.classList.remove('d-none');
+    // Show/hide the partial coverage toggle
+    if (hasOutOfRange) {
+        partialToggle.classList.remove('d-none');
     } else {
-        fieldWarningBanner.classList.add('d-none');
+        partialToggle.classList.add('d-none');
+        if (partialCheckbox) partialCheckbox.checked = false;
     }
+
+    fieldWarningBanner.classList.add('d-none');
 }
+
+// Partial coverage toggle listener
+const partialCoverageCheckbox = document.getElementById('fieldPartialCoverage');
+if (partialCoverageCheckbox) {
+    partialCoverageCheckbox.addEventListener('change', validateFieldAvailability);
+}
+
 // Event Listeners
 btnGenerate.addEventListener('click', startGeneration);
 
