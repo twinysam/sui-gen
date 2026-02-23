@@ -335,3 +335,26 @@ code {
 [data-bs-theme="dark"] .sui-modal .btn-close {
     filter: invert(1);
 }
+
+/* ===========================
+   Custom Scrollbar
+   =========================== */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+[data-bs-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #555;
+}
+[data-bs-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}

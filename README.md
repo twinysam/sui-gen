@@ -34,6 +34,41 @@ Zodiac, element, and Ganzhi cycle fields are computed separately via pure 12- an
 
 Ephemeris data courtesy of [NASA Jet Propulsion Laboratory](https://ssd.jpl.nasa.gov/doc/de440_de441.html).
 
+### Available Precomputed Datasets
+
+All datasets were computed using Skyfield, against NASA JPL planetary ephemerides DE440 (1550–2648 CE) and DE441 (619–17190 CE).All timestamps are given in both Terrestrial Time (TT) as Julian Day Numbers and as approximate UTC.
+
+#### [`sui-gen-jpl-source_619-17190.json`](sui-gen-jpl-source_619-17190.json)
+**Chinese Lunisolar Calendar Dataset — 619 to 17190 CE**
+One record per lunar year containing:
+* `gregorian_year` — the Gregorian year in which Chinese New Year falls
+* `cnyDate` — Chinese New Year date in Beijing Time (UTC+8)
+* `newMoonUtc` — precise UTC timestamp of the new moon marking Chinese New Year
+* `liChun` — date of 立春 (Start of Spring), the first solar term of the traditional agricultural calendar
+* `leapMonth` — the leap month number if the year contains one, otherwise null
+* `yearLength` — length of the lunar year in days (354, 355, or 384)
+* `zodiac`, `element`, `ganzhi` — cyclical calendar attributes
+* `ephemeris` — which JPL ephemeris was used for that year (DE440 or DE441)
+
+#### [`sui-gen-solar-terms-619-17190.json`](sui-gen-solar-terms-619-17190.json)
+**All 24 Solar Terms — 619 to 17190 CE**
+One record per Gregorian year containing all 24 solar terms (節氣, Jiéqì). Each term includes:
+* `index` — ecliptic longitude index (0–23, where index = ⌊solar longitude / 15°⌋ mod 24)
+* `zh` — traditional Chinese name
+* `pinyin` — romanized pronunciation
+* `en` — English name
+* `date` — Beijing date (UTC+8)
+* `tt` — Terrestrial Time Julian Day Number
+
+#### [`sui-gen-newmoon-tt-619-17190.json`](sui-gen-newmoon-tt-619-17190.json)
+**New Moon Moments in Terrestrial Time — 619 to 17190 CE**
+One record per lunar conjunction (~204,964 total) containing:
+* `tt` — Terrestrial Time Julian Day Number (authoritative field)
+* `utcApprox` — UTC approximation
+* `beijingDate` — local date in Beijing Time (UTC+8)
+
+*Note on TT vs UTC*: Terrestrial Time is a uniform atomic timescale unaffected by Earth's irregular rotation. Converting TT to UTC requires ΔT — the measured difference between the two timescales — which is known precisely for historical and near-future dates but must be extrapolated for dates far in the future. For applications requiring maximum long-term precision, use the `tt` field directly and apply your own ΔT conversion using the best available data at the time of use.
+
 ### Accuracy & Reliability
 
 Sui-Gen's pre-computed data is built from JPL DE440/DE441 ephemerides. For dates beyond the pre-computed range, the [lunar-javascript](https://github.com/6tail/lunar-javascript) library is used as a fallback.

@@ -11,3 +11,5 @@ moon.txt
 # JSON files EXCEPT sui-gen-jpl-source_619-17190.json
 *.json
 !sui-gen-jpl-source_619-17190.json
+!sui-gen-solar-terms-619-17190.json
+!sui-gen-newmoon-tt-619-17190.json

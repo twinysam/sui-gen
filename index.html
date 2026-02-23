@@ -229,7 +229,7 @@
     <!-- Reliability Modal -->
     <div class="modal fade" id="reliabilityModal" tabindex="-1" aria-labelledby="reliabilityModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content sui-modal border-0 shadow-lg">
                 <div class="modal-header border-bottom border-light-subtle">
                     <h5 class="modal-title fw-bold d-flex align-items-center" id="reliabilityModalLabel">
@@ -239,7 +239,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-4 custom-scrollbar">
                     <div class="mb-4">
                         <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Astronomical
                             Precision</h6>
@@ -268,6 +268,51 @@
                         <p class="sui-modal-text small">Zodiac, element, and Ganzhi cycle fields are computed
                             separately via pure 12- and 60-year cycle arithmetic and are 100% reliable for any
                             year.</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-2 sui-modal-heading border-start border-3 border-danger ps-2">Precomputed
+                            Datasets</h6>
+                        <p class="sui-modal-text small mb-2">The following JSON datasets, spanning 619 to 17190 CE, are
+                            available for direct download. All timestamps are given in both Terrestrial Time (TT) and
+                            approximate UTC.</p>
+
+                        <div class="w-100 border border-light-subtle rounded p-2 bg-light bg-opacity-50">
+                            <!-- sui-gen-jpl-source_619-17190 -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold small text-dark">Lunisolar Calendar Dataset</span>
+                                    <a href="sui-gen-jpl-source_619-17190.json" download
+                                        class="btn btn-sm btn-outline-danger py-0 px-2 extra-small">Download</a>
+                                </div>
+                                <p class="extra-small text-secondary mb-0">Records per lunar year including CNY date,
+                                    leap month, <i>zodiac</i>, <i>element</i>, <i>ganzhi</i>, and precise UTC new moon
+                                    moment.</p>
+                            </div>
+
+                            <!-- solar terms -->
+                            <div class="mb-3 border-top border-light-subtle pt-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold small text-dark">All 24 Solar Terms</span>
+                                    <a href="sui-gen-solar-terms-619-17190.json" download
+                                        class="btn btn-sm btn-outline-danger py-0 px-2 extra-small">Download</a>
+                                </div>
+                                <p class="extra-small text-secondary mb-0">Contains index, Chinese name, pinyin, English
+                                    name, Beijing date, and Terrestrial Time (TT) for all 24 solar terms annually.</p>
+                            </div>
+
+                            <!-- newmoon tt -->
+                            <div class="border-top border-light-subtle pt-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold small text-dark">New Moon Moments in TT</span>
+                                    <a href="sui-gen-newmoon-tt-619-17190.json" download
+                                        class="btn btn-sm btn-outline-danger py-0 px-2 extra-small">Download</a>
+                                </div>
+                                <p class="extra-small text-secondary mb-0">Authoritative Terrestrial Time Julian Day
+                                    Numbers for all lunar conjunctions (~204,964 total) with approximate UTC and Beijing
+                                    Time.</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="p-3 sui-modal-ref rounded border border-light-subtle extra-small">
