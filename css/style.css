@@ -339,6 +339,14 @@ code {
 /* ===========================
    Custom Scrollbar
    =========================== */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+[data-bs-theme="dark"] .custom-scrollbar {
+    scrollbar-color: #555 transparent;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
 }
