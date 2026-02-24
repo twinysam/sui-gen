@@ -101,39 +101,10 @@ for (let y = startYear; y <= endYear; y++) {
         if (fields.cnyDate && isWithinHardLimits('cnyDate', y)) yearData.cny = jplEntry.cnyDate;
         if (fields.newMoonUtc && isWithinHardLimits('newMoonUtc', y)) {
             yearData.newMoonUtc = jplEntry.newMoonUtc;
-            yearData.newMoonUtcApproximate = false;
         }
         if (fields.liChun && isWithinHardLimits('liChun', y)) yearData.liChun = jplEntry.liChun;
         if (fields.yearLength && isWithinHardLimits('yearLength', y)) yearData.yearLength = jplEntry.yearLength;
         if (fields.leapMonth && isWithinHardLimits('leapMonth', y)) yearData.leapMonth = jplEntry.leapMonth;
-    } else {
-        // Fallback to lunar-javascript for years outside JPL range
-        let lunarNewYear = null;
-        let solarObj = null;
-        try {
-            lunarNewYear = Lunar.fromYmd(y, 1, 1);
-            solarObj = lunarNewYear.getSolar();
-        } catch (e) {}
-
-        if (fields.cnyDate && isWithinHardLimits('cnyDate', y) && solarObj) yearData.cny = solarObj.toYmd();
-        if (fields.liChun && isWithinHardLimits('liChun', y) && lunarNewYear) {
-            const jieQiTable = lunarNewYear.getJieQiTable();
-            if (jieQiTable['立春']) yearData.liChun = jieQiTable['立春'].toYmd();
-        }
-        if ((fields.yearLength || fields.leapMonth) && isWithinHardLimits('yearLength', y)) {
-            try {
-                const lunarYearObj = LunarYear.fromYear(y);
-                if (fields.yearLength) yearData.yearLength = lunarYearObj.getDayCount();
-                if (fields.leapMonth) {
-                    const lm = lunarYearObj.getLeapMonth();
-                    yearData.leapMonth = lm > 0 ? lm : null;
-                }
-            } catch (e) {}
-        }
-        if (fields.newMoonUtc && isWithinHardLimits('newMoonUtc', y) && solarObj) {
-            yearData.newMoonUtc = solarObj.toYmd() + "T00:00:00Z";
-            yearData.newMoonUtcApproximate = true;
-        }
     }
 
     // Cycle fields (always reliable)

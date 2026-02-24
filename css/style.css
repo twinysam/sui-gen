@@ -297,14 +297,30 @@ code {
     color: #666;
 }
 
+.sui-dataset-container {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.sui-dataset-title {
+    color: var(--sui-ink);
+}
+
+.sui-dataset-desc {
+    color: #666;
+}
+
 /* Dark Mode Specific Refinements */
 [data-bs-theme="dark"] .sui-modal {
     --sui-paper: #222226;
     border: 1px solid rgba(255,255,255,0.08);
 }
 
-[data-bs-theme="dark"] .sui-modal .modal-header,
+[data-bs-theme="dark"] .sui-modal .modal-header {
+    border-color: rgba(255,255,255,0.08) !important;
+}
+
 [data-bs-theme="dark"] .sui-modal .modal-footer {
+    background-color: #000 !important;
     border-color: rgba(255,255,255,0.08) !important;
 }
 
@@ -320,6 +336,19 @@ code {
     background-color: #2a2a2e;
     color: #b0b0b0;
     border-color: rgba(255,255,255,0.05) !important;
+}
+
+[data-bs-theme="dark"] .sui-dataset-container {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-bs-theme="dark"] .sui-dataset-title {
+    color: var(--sui-ink);
+}
+
+[data-bs-theme="dark"] .sui-dataset-desc {
+    color: #b0b0b0;
 }
 
 /* Modal Title Icon specific fix */

@@ -116,11 +116,14 @@ function handleWorkerMessage(e) {
         if (current !== undefined && total !== undefined) {
             const percent = Math.round((current / total) * 100);
             progressBar.style.width = `${percent}%`;
+            // Ensure container remains visible while processing
+            progressBarContainer.style.display = 'flex';
         }
         if (status) {
             statusText.textContent = status;
         }
     } else if (type === 'complete') {
+        progressBar.style.width = '100%';
         generatedData = data;
         finishGeneration(usedFallback);
     } else if (type === 'error') {
@@ -261,7 +264,7 @@ function finishGeneration(usedFallback) {
     updateOutput();
     
     if (usedFallback) {
-        statusText.innerHTML = 'Generation Complete! <span class="text-success fw-bold">(JPL DE440/DE441)</span> <span class="text-warning fw-bold">+ lunar-javascript fallback for out-of-range years</span>';
+        statusText.innerHTML = 'Generation Complete! <span class="text-success fw-bold">(JPL DE440/DE441)</span> <span class="text-warning fw-bold">+ Cycle data fallback for out-of-range years</span>';
     } else {
         statusText.innerHTML = 'Generation Complete! <span class="text-success fw-bold">(JPL DE440/DE441 Precision)</span>';
     }
@@ -285,9 +288,8 @@ function resetUI() {
     btnGenerate.disabled = false;
     spinner.classList.add('d-none');
     btnText.textContent = 'Generate Calendar';
-    // Keep progress bar filled if complete, or hide if error/reset? 
-    // Let's leave it visible but maybe change color or something if we want. 
-    // For now, simple reset of button state.
+    // Hide progress bar when idle/complete
+    progressBarContainer.style.display = 'none';
 }
 
 function validateFieldAvailability() {

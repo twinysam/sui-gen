@@ -110,9 +110,10 @@ async function generateManifest({ startYear, endYear, fields, partialCoverage })
     self.postMessage({ type: 'progress', data: { current: 5, total: 100, status: 'Assembling calendar data...' } });
 
     for (let y = startYear; y <= endYear; y++) {
-        const pct = Math.round(5 + ((y - startYear) / total) * 90);
+        // Progress: starts at 5% (JPL loaded), ends at 100%
+        const pct = Math.round(5 + ((y - startYear + 1) / total) * 95);
         if ((y - startYear) % 50 === 0 || y === endYear) {
-            self.postMessage({ type: 'progress', data: { current: pct, total: 100, status: `Processing year ${y}...` } });
+            self.postMessage({ type: 'progress', data: { current: Math.min(pct, 100), total: 100, status: `Processing year ${y}...` } });
         }
 
         try {
@@ -126,7 +127,6 @@ async function generateManifest({ startYear, endYear, fields, partialCoverage })
                 }
                 if (fields.newMoonUtc && isWithinHardLimits('newMoonUtc', y)) {
                     yearData.newMoonUtc = jplEntry.newMoonUtc;
-                    yearData.newMoonUtcApproximate = false;
                 }
                 if (fields.liChun && isWithinHardLimits('liChun', y)) {
                     yearData.liChun = jplEntry.liChun;
@@ -140,14 +140,12 @@ async function generateManifest({ startYear, endYear, fields, partialCoverage })
             } else if (partialCoverage) {
                 // Partial coverage mode: output null for astronomical fields outside JPL range
                 if (fields.cnyDate) yearData.cny = null;
-                if (fields.newMoonUtc) { yearData.newMoonUtc = null; yearData.newMoonUtcApproximate = null; }
+                if (fields.newMoonUtc) yearData.newMoonUtc = null;
                 if (fields.liChun) yearData.liChun = null;
                 if (fields.yearLength) yearData.yearLength = null;
                 if (fields.leapMonth) yearData.leapMonth = null;
-            } else {
-                // --- Fallback to lunar-javascript for years outside JPL range ---
-                generateYearOffline(yearData, y, fields);
             }
+            // If not in partialCoverage and no jplEntry, astronomical fields are simply omitted from yearData
 
             // Cycle fields (always computed arithmetically, reliable for any year)
             let lunarNewYear = null;
@@ -188,44 +186,3 @@ async function generateManifest({ startYear, endYear, fields, partialCoverage })
     self.postMessage({ type: 'complete', data, usedFallback: hasOutOfRange });
 }
 
-/**
- * Populate astronomical fields for a single year using lunar-javascript (offline fallback).
- */
-function generateYearOffline(yearData, year, fields) {
-    let lunarNewYear = null;
-    let solarObj = null;
-
-    try {
-        lunarNewYear = Lunar.fromYmd(year, 1, 1);
-        solarObj = lunarNewYear.getSolar();
-    } catch (libErr) {
-        console.warn(`Library failed for year ${year}.`);
-    }
-
-    if (fields.cnyDate && solarObj) yearData.cny = solarObj.toYmd();
-
-    if (fields.liChun) {
-        if (lunarNewYear) {
-            const jieQiTable = lunarNewYear.getJieQiTable();
-            if (jieQiTable['立春']) yearData.liChun = jieQiTable['立春'].toYmd();
-        }
-    }
-
-    if ((fields.yearLength || fields.leapMonth)) {
-        try {
-            const lunarYearObj = LunarYear.fromYear(year);
-            if (fields.yearLength) yearData.yearLength = lunarYearObj.getDayCount();
-            if (fields.leapMonth) {
-                const lm = lunarYearObj.getLeapMonth();
-                yearData.leapMonth = lm > 0 ? lm : null;
-            }
-        } catch (lyErr) {}
-    }
-
-    if (fields.newMoonUtc) {
-        if (solarObj) {
-            yearData.newMoonUtc = solarObj.toYmd() + "T00:00:00Z";
-            yearData.newMoonUtcApproximate = true;
-        }
-    }
-}
